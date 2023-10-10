@@ -1,17 +1,21 @@
 import React from 'react';
-import ReactDOM from 'react-dom/client';
+import ReactDOM from 'react-dom';
+import { createStore } from 'polotno/model/store';
+
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
+import '@blueprintjs/icons/lib/css/blueprint-icons.css';
+import '@blueprintjs/core/lib/css/blueprint.css';
+import '@blueprintjs/popover2/lib/css/blueprint-popover2.css';
 
-const root = ReactDOM.createRoot(document.getElementById('root'));
-root.render(
+// Create a Polotno store without adding any initial page or element
+const polotnoStore = createStore();
+
+ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    <App />
+    <App store={polotnoStore} /> {/* Pass the Polotno store as a prop */}
   </React.StrictMode>
 );
 
-// If you want to start measuring performance in your app, pass a function
-// to log results (for example: reportWebVitals(console.log))
-// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
 reportWebVitals();

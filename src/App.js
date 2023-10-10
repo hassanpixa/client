@@ -1,24 +1,45 @@
 import logo from './logo.svg';
 import './App.css';
+import { PolotnoContainer, SidePanelWrap, WorkspaceWrap } from 'polotno';
+import { Toolbar } from 'polotno/toolbar/toolbar';
+import { ZoomButtons } from 'polotno/toolbar/zoom-buttons';
+import { SidePanel } from 'polotno/side-panel';
+import { Workspace } from 'polotno/canvas/workspace';
+import { QrSection, getQR } from './utils/polotnoQrSection';
+import { DEFAULT_SECTIONS } from 'polotno/side-panel';
+import Savebutton from './polotno-editor/components/saveButton/Savebutton';
+import { CustomTemplateTab } from './polotno-editor/components/customTemplateTab/CustomTemplateTab';
 
-function App() {
+function App({ store }) {
+  const val = 'https://polotno.com/';
+  getQR(val).then((src) => {
+    store.activePage?.addElement({
+      type: 'svg',
+      name: 'qr',
+      x: store.width / 2 - 150,
+      y: store.height / 2 - 150,
+      width: 300,
+      height: 300,
+      src,
+      custom: {
+        value: val,
+      },
+    });
+  });
+  
+  // we will have just two sections
+  const sections = [QrSection, ...DEFAULT_SECTIONS];
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <PolotnoContainer style={{ width: '100vw', height: '100vh' }}>
+      <SidePanelWrap>
+        <SidePanel store={store} sections={sections.filter((section) => section.name !== 'size')}  />
+      </SidePanelWrap>
+      <WorkspaceWrap>
+        <Toolbar store={store} components={{ActionControls: Savebutton}} />
+        <Workspace store={store} />
+        <ZoomButtons store={store} />
+      </WorkspaceWrap>
+    </PolotnoContainer>
   );
 }
 
