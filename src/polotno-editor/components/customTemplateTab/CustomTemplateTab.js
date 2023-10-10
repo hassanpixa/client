@@ -7,7 +7,11 @@ import MdPhotoLibrary from '@meronex/icons/md/MdPhotoLibrary';
 
 import { ImagesGrid } from 'polotno/side-panel/images-grid';
 
-export const CustomTemplateTab = observer(({ store }) => {
+export const TemplatesPanel = observer(({ store }) => {
+
+    const custom = store.toJSON()
+    console.log(custom)
+
   // load data
   const { data, isLoading } = useInfiniteAPI({
     getAPI: ({ page }) => `templates/page${page}.json`,
@@ -34,7 +38,7 @@ export const CustomTemplateTab = observer(({ store }) => {
 });
 
 // define the new custom section
-export const TemplatesSection = {
+export const CustomTemplateTab = {
   name: 'custom-templates',
   Tab: (props) => (
     <SectionTab name="Custom templates" {...props}>
@@ -42,5 +46,5 @@ export const TemplatesSection = {
     </SectionTab>
   ),
   // we need observer to update component automatically on any store changes
-  Panel: CustomTemplateTab,
+  Panel: TemplatesPanel,
 };

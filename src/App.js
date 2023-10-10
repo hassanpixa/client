@@ -1,4 +1,3 @@
-import logo from './logo.svg';
 import './App.css';
 import { PolotnoContainer, SidePanelWrap, WorkspaceWrap } from 'polotno';
 import { Toolbar } from 'polotno/toolbar/toolbar';
@@ -11,24 +10,24 @@ import Savebutton from './polotno-editor/components/saveButton/Savebutton';
 import { CustomTemplateTab } from './polotno-editor/components/customTemplateTab/CustomTemplateTab';
 
 function App({ store }) {
-  const val = 'https://polotno.com/';
-  getQR(val).then((src) => {
-    store.activePage?.addElement({
-      type: 'svg',
-      name: 'qr',
-      x: store.width / 2 - 150,
-      y: store.height / 2 - 150,
-      width: 300,
-      height: 300,
-      src,
-      custom: {
-        value: val,
-      },
-    });
-  });
+  // const val = 'https://polotno.com/';
+  // getQR(val).then((src) => {
+  //   store.activePage?.addElement({
+  //     type: 'svg',
+  //     name: 'qr',
+  //     x: store.width / 2 - 150,
+  //     y: store.height / 2 - 150,
+  //     width: 300,
+  //     height: 300,
+  //     src,
+  //     custom: {
+  //       value: val,
+  //     },
+  //   });
+  // });
   
   // we will have just two sections
-  const sections = [QrSection, ...DEFAULT_SECTIONS];
+  const sections = [QrSection,CustomTemplateTab, ...DEFAULT_SECTIONS];
   return (
     <PolotnoContainer style={{ width: '100vw', height: '100vh' }}>
       <SidePanelWrap>

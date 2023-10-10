@@ -14,8 +14,8 @@ export async function getQR(text) {
       {
         type: 'svg',
         color: {
-          dark: '#00F', // Blue dots
-          light: '#0000', // Transparent background
+          dark: '#000000', // Blue dots
+          light: '#FFFFFF', // Transparent background
         },
       },
       (err, string) => {

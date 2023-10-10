@@ -1,5 +1,5 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
+import ReactDOM from 'react-dom/client';
 import { createStore } from 'polotno/model/store';
 
 import './index.css';
@@ -11,11 +11,14 @@ import '@blueprintjs/popover2/lib/css/blueprint-popover2.css';
 
 // Create a Polotno store without adding any initial page or element
 const polotnoStore = createStore();
+polotnoStore.clear();
+polotnoStore.addPage()
+polotnoStore.setSize(1280, 800, true);
 
 ReactDOM.createRoot(document.getElementById('root')).render(
-  <React.StrictMode>
-    <App store={polotnoStore} /> {/* Pass the Polotno store as a prop */}
-  </React.StrictMode>
+  // <React.StrictMode>
+    <App store={polotnoStore} />
+  // </React.StrictMode>
 );
 
 reportWebVitals();
