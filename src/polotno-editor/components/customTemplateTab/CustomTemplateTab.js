@@ -8,10 +8,6 @@ import MdPhotoLibrary from '@meronex/icons/md/MdPhotoLibrary';
 import { ImagesGrid } from 'polotno/side-panel/images-grid';
 
 export const TemplatesPanel = observer(({ store }) => {
-
-    const custom = store.toJSON()
-    console.log(custom)
-
   // load data
   const { data, isLoading } = useInfiniteAPI({
     getAPI: ({ page }) => `templates/page${page}.json`,
