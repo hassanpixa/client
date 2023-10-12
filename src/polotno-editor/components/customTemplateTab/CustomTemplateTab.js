@@ -6,13 +6,14 @@ import { SectionTab } from 'polotno/side-panel';
 import MdPhotoLibrary from '@meronex/icons/md/MdPhotoLibrary';
 
 import { ImagesGrid } from 'polotno/side-panel/images-grid';
-
+import{generateImage} from '../../../utils/pngGenerator';
+import {json} from '../../../data';
 export const TemplatesPanel = observer(({ store }) => {
   // load data
   const { data, isLoading } = useInfiniteAPI({
     getAPI: ({ page }) => `templates/page${page}.json`,
   });
-
+// const pic=generateImage(json)
   return (
     <div style={{ height: '100%' }}>
       <ImagesGrid

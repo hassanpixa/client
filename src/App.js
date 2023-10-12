@@ -8,6 +8,7 @@ import { QrSection, getQR } from './utils/polotnoQrSection';
 import { DEFAULT_SECTIONS } from 'polotno/side-panel';
 import Savebutton from './polotno-editor/components/saveButton/Savebutton';
 import { CustomTemplateTab } from './polotno-editor/components/customTemplateTab/CustomTemplateTab';
+import { CustomResizePanel } from './polotno-editor/components/customResizePanel/CustomResizePanel';
 
 function App({ store }) {
   // const val = 'https://polotno.com/';
@@ -27,12 +28,17 @@ function App({ store }) {
   // });
   
   // we will have just two sections
+  const ResizeSection = DEFAULT_SECTIONS.find(
+    (section) => section.name === "size"
+  );
+  // overwrite its panel component
+  ResizeSection.Panel = CustomResizePanel;
   const sections = [QrSection,CustomTemplateTab, ...DEFAULT_SECTIONS];
   return (
    
     <PolotnoContainer style={{ width: '100vw', height: '100vh' }}>
       <SidePanelWrap>
-        <SidePanel store={store} sections={sections.filter((section) => section.name !== 'size')}  />
+        <SidePanel store={store} sections={sections}  />
       </SidePanelWrap>
       <WorkspaceWrap>
         <Toolbar store={store} components={{ActionControls: Savebutton}} />
