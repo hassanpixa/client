@@ -29,6 +29,7 @@ function App({ store }) {
   // we will have just two sections
   const sections = [QrSection,CustomTemplateTab, ...DEFAULT_SECTIONS];
   return (
+   
     <PolotnoContainer style={{ width: '100vw', height: '100vh' }}>
       <SidePanelWrap>
         <SidePanel store={store} sections={sections.filter((section) => section.name !== 'size')}  />
@@ -39,7 +40,5 @@ function App({ store }) {
         <ZoomButtons store={store} />
       </WorkspaceWrap>
     </PolotnoContainer>
-  );
-}
-
-export default App;
+  )}
+  export default App;
