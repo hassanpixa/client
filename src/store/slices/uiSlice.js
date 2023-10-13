@@ -1,24 +1,24 @@
-import { createSlice } from '@reduxjs/toolkit';
-const initialStates={
-    addQr:0,
-    showPopUp:false,
+import { createSlice } from "@reduxjs/toolkit";
 
-}
-const uiSlice = createSlice({
-  name: 'counter',
-  initialState: 0,
+export const uiSlice = createSlice({
+  name: "ui",
+  initialState: {
+    addQr: 0,
+    showPopUp: false,
+  },
   reducers: {
-    qrHandler:(state)=>{
-        state.addQr+=state.addQr;
+    qrHandler: (state) => {
+      state.addQr += state.addQr;
     },
-    showPopUpHandler: (state) =>{
-            state.showPopUp=true
+    showPopUpHandler: (state) => {
+      state.showPopUp = true;
     },
-    hidePopUpHandler: (state) =>{
-        state.showPopUp=false
-},
+    hidePopUpHandler: (state) => {
+      state.showPopUp = false;
+    },
   },
 });
 
-export const { qrHandler, showPopUpHandler, hidePopUpHandler} = uiSlice.actions;
+export const { qrHandler, showPopUpHandler, hidePopUpHandler } =
+  uiSlice.actions;
 export default uiSlice.reducer;

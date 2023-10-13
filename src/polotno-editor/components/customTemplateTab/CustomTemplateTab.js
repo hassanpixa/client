@@ -65,7 +65,7 @@ export const TemplatesPanel = observer(({ store }) => {
         // images={[{ preview: imageBase64, json: Jsondata }]}
         images={objectArray?.map((data) => data).flat()}
         getPreview={(item) => {
-          console.log(objectArray[0].prev)
+          // console.log(objectArray[0].prev)
           
           const obj= objectArray?.find(it=>it.prev===item?.prev)
           // console.log(item)

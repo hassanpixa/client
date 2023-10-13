@@ -3,8 +3,8 @@ import uiSlice from "./slices/uiSlice";
 
 const store = configureStore({
     reducer: {
-        ui: uiSlice.reducer, // Remove the quotes around 'ui'
+        ui: uiSlice,
     },
 });
 
-export default store; // Corrected 'dafault' to 'default'
+export default store;
