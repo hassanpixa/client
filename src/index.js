@@ -13,6 +13,7 @@ import '@blueprintjs/popover2/lib/css/blueprint-popover2.css';
 const polotnoStore = createStore();
 polotnoStore.clear();
 polotnoStore.addPage()
+
 polotnoStore.setSize(1280, 800, true);
 
 ReactDOM.createRoot(document.getElementById('root')).render(

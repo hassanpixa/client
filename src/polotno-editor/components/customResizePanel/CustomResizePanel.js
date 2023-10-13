@@ -3,7 +3,9 @@ import { observer } from "mobx-react-lite";
 import { Button } from "@blueprintjs/core";
 
 const AVAILABLE_SIZES = [
-  { width: 1280, height: 800 }
+  { width: 1600, height: 720 },
+  { width: 1280, height: 800 },
+  { width: 1280, height: 720 }
 ];
 
 export const CustomResizePanel = observer(({ store }) => {
@@ -13,8 +15,9 @@ export const CustomResizePanel = observer(({ store }) => {
         <Button
           key={i}
           style={{ width: "100%", marginBottom: "20px" }}
-          onClick={
-            store.setSize(width, height)}
+          onClick={() => {
+            store.setSize(width, height);
+          }}
         >
           {width}x{height}
         </Button>
