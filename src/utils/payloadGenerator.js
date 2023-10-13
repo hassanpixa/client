@@ -1,6 +1,5 @@
 // import { async } from "q";
-const payload = new FormData();
-let json = {};
+
 // file generator
 const urltoFile = async (url, filename, mimeType) => {
     // Implement the function to convert a URL to a file and return it.
@@ -16,9 +15,9 @@ const urltoFile = async (url, filename, mimeType) => {
 
 export const payloadHandler = async (store) => {
     
-        for(let item of payload){
-            payload?.delete(item)
-        }
+    const payload = new FormData();
+    let json = {};
+        
         json = JSON.stringify(await store.toJSON());
         payload.append("json", json);
         const data = new Date();
