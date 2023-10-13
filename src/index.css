@@ -11,3 +11,33 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+/* css for pop */
+/* 
+customClass: {
+  container: '...',
+  popup: '...',
+  header: '...',
+  title: '...',
+  closeButton: '...',
+  icon: '...',
+  image: '...',
+  htmlContainer: '...',
+  input: '...',
+  inputLabel: '...',
+  validationMessage: '...',
+  actions: '...',
+  confirmButton: '...',
+  denyButton: '...',
+  cancelButton: '...',
+  loader: '...',
+  footer: '....',
+  timerProgressBar: '....',
+}
+
+*/
+.save_button_popUP{
+  outline-color: transparent !important;
+  box-shadow: none !important;
+ border-color: #244105 !important;
+  background-color:  #244105 !important;
+}
