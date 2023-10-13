@@ -5,7 +5,8 @@ import QRCode from 'qrcode';
 import * as svg from 'polotno/utils/svg';
 import ImQrcode from '@meronex/icons/im/ImQrcode';
 import { Button, InputGroup } from '@blueprintjs/core';
-
+import { useDispatch } from 'react-redux';
+import { qrHandler } from 'store/slices/uiSlice';
 // create svg image for QR code for input text
 export async function getQR(text) {
   return new Promise((resolve) => {
@@ -39,11 +40,15 @@ export const QrSection = {
 
     const concatenatedValue = inputValues.join('\n'); // Concatenate input values with line breaks
 
+   const dispatch = useDispatch()
     const generateQRCode = () => {
+      
+      dispatch(qrHandler())
       getQR(concatenatedValue).then((src) => {
         store.activePage?.addElement({
           type: 'svg',
           name: 'qr',
+          id:'q',
           x: 50, // Adjust position as needed
           y: 50,
           width: 200,
