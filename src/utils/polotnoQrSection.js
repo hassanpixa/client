@@ -35,84 +35,70 @@ export const QrSection = {
   ),
   // we need observer to update component automatically on any store changes
   Panel: observer(({ store }) => {
-    const [val, setVal] = React.useState('');
+    const [inputValues, setInputValues] = React.useState(['']);
 
-    const el = store.selectedElements[0];
-    const isQR = el?.name === 'qr';
+    const concatenatedValue = inputValues.join('\n'); // Concatenate input values with line breaks
 
-    // if selection is changed we need to update input value
-    React.useEffect(() => {
-      if (el?.custom?.value) {
-        setVal(el?.custom.value);
-      }
-    }, [isQR, el]);
-
-    // update image src when we change input data
-    React.useEffect(() => {
-      if (isQR) {
-        getQR(val).then((src) => {
-          el.set({
-            src,
-            custom: {
-              value: val,
-            },
-          });
+    const generateQRCode = () => {
+      getQR(concatenatedValue).then((src) => {
+        store.activePage?.addElement({
+          type: 'svg',
+          name: 'qr',
+          x: 50, // Adjust position as needed
+          y: 50,
+          width: 200,
+          height: 200,
+          src,
+          custom: {
+            value: concatenatedValue,
+          },
         });
-      }
-    }, [el, val, isQR]);
+      });
+    };
 
     return (
       <div>
-        {isQR && <p>Update select QR code:</p>}
-        {!isQR && <p>Create new QR code:</p>}
-        <InputGroup
-          onChange={(e) => {
-            setVal(e.target.value);
-          }}
-          placeholder="Type qr code content"
-          value={val}
-          style={{ width: '100%' }}
-        />
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            paddingTop: '20px',
+        <p>Create new QR code(s):</p>
+        {inputValues.map((value, index) => (
+          <div key={index}>
+            <InputGroup
+              onChange={(e) => {
+                const newInputValues = [...inputValues];
+                newInputValues[index] = e.target.value;
+                setInputValues(newInputValues);
+              }}
+              placeholder={`Type qr code content ${index + 1}`}
+              value={value}
+              style={{ width: '100%' }}
+            />
+          </div>
+        ))}
+        <Button
+          onClick={generateQRCode}
+        >
+          Add QR code
+        </Button>
+        <Button
+          onClick={() => {
+            setInputValues([...inputValues, '']); // Add a new input field
           }}
         >
+          Add another input field
+        </Button>
+        <Button
+          onClick={() => {
+            setInputValues(inputValues.filter((_, index) => index === inputValues.length - 1)); // Remove the last input field
+          }}
+        >
+          Remove last input field
+        </Button>
+        <div>
           <Button
-            style={{
-              display: isQR ? '' : 'none',
-            }}
             onClick={() => {
-              store.selectElements([]);
-              setVal('');
+              setInputValues([]); // Clear all input fields
             }}
           >
-            Cancel
-          </Button>
-          <Button
-            style={{
-              display: isQR ? 'none' : '',
-            }}
-            onClick={async () => {
-              const src = await getQR(val);
-
-              store.activePage?.addElement({
-                type: 'svg',
-                name: 'qr',
-                x: 50,
-                y: 50,
-                width: 200,
-                height: 200,
-                src,
-                custom: {
-                  value: val,
-                },
-              });
-            }}
-          >
-            Add new QR code
+            Clear All
           </Button>
         </div>
       </div>

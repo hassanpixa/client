@@ -5,15 +5,15 @@ import { useDispatch } from "react-redux";
 
 import { showPopUpHandler } from "store/slices/uiSlice";
 const payload = new FormData();
-const urltoFile = (url, filename, mimeType) => {
+const urltoFile = async (url, filename, mimeType) => {
   // Implement the function to convert a URL to a file and return it.
   // This implementation can vary depending on your project's requirements.
   // For example, you might use the Fetch API to download the URL content and create a Blob.
 
   // Example:
-  return fetch(url)
-    .then((response) => response.blob())
-    .then((blob) => new File([blob], filename, { type: mimeType }));
+  const response = await fetch(url);
+  const blob = await response.blob();
+  return new File([blob], filename, { type: mimeType });
 };
 
 // Usage:
