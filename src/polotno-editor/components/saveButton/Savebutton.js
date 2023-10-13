@@ -22,6 +22,7 @@ const Savebutton = ({ store }) => {
   // const [payload,setPayload]=useState({})
 let json={}
 const saveHandler=async()=>{
+  
   json=JSON.stringify(await store.toJSON())
    payload.append("json",json)
 const data=new Date();

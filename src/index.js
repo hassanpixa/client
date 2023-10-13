@@ -1,7 +1,8 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { createStore } from 'polotno/model/store';
-
+import { Provider } from 'react-redux';
+import store from 'store'
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
@@ -18,7 +19,9 @@ polotnoStore.setSize(1280, 800, true);
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   // <React.StrictMode>
+  <Provider store={store}>
     <App store={polotnoStore} />
+    </Provider>
   // </React.StrictMode>
 );
 
