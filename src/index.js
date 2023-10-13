@@ -11,17 +11,17 @@ import '@blueprintjs/core/lib/css/blueprint.css';
 import '@blueprintjs/popover2/lib/css/blueprint-popover2.css';
 
 // Create a Polotno store without adding any initial page or element
-// const polotnoStore = createStore();
-// // polotnoStore.clear();
-// polotnoStore.addPage()
+const polotnoStore = createStore();
+// polotnoStore.clear();
+polotnoStore.addPage()
 
-// polotnoStore.setSize(1280, 800, true);
+polotnoStore.setSize(1280, 800, true);
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   // <React.StrictMode>
   <Provider store={store}>
     <App 
-    // polotnoStore={polotnoStore} 
+    polotnoStore={polotnoStore} 
     />
     </Provider>
   // </React.StrictMode>
