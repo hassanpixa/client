@@ -1,14 +1,15 @@
-import './App.css';
-import { PolotnoContainer, SidePanelWrap, WorkspaceWrap } from 'polotno';
-import { Toolbar } from 'polotno/toolbar/toolbar';
-import { ZoomButtons } from 'polotno/toolbar/zoom-buttons';
-import { SidePanel } from 'polotno/side-panel';
-import { Workspace } from 'polotno/canvas/workspace';
-import { QrSection, getQR } from './utils/polotnoQrSection';
-import { DEFAULT_SECTIONS } from 'polotno/side-panel';
-import Savebutton from './polotno-editor/components/saveButton/Savebutton';
-import { CustomTemplateTab } from './polotno-editor/components/customTemplateTab/CustomTemplateTab';
-import { CustomResizePanel } from './polotno-editor/components/customResizePanel/CustomResizePanel';
+import "./App.css";
+import { PolotnoContainer, SidePanelWrap, WorkspaceWrap } from "polotno";
+import { Toolbar } from "polotno/toolbar/toolbar";
+import { ZoomButtons } from "polotno/toolbar/zoom-buttons";
+import { SidePanel } from "polotno/side-panel";
+import { Workspace } from "polotno/canvas/workspace";
+import { QrSection, getQR } from "./utils/polotnoQrSection";
+import { DEFAULT_SECTIONS } from "polotno/side-panel";
+import Savebutton from "./polotno-editor/components/saveButton/Savebutton";
+import { CustomTemplateTab } from "./polotno-editor/components/customTemplateTab/CustomTemplateTab";
+import { CustomResizePanel } from "./polotno-editor/components/customResizePanel/CustomResizePanel";
+import Swal from "sweetalert2";
 
 function App({ store }) {
   // const val = 'https://polotno.com/';
@@ -26,25 +27,35 @@ function App({ store }) {
   //     },
   //   });
   // });
-  
+
   // we will have just two sections
   const ResizeSection = DEFAULT_SECTIONS.find(
     (section) => section.name === "size"
   );
   // overwrite its panel component
   ResizeSection.Panel = CustomResizePanel;
-  const sections = [QrSection,CustomTemplateTab, ...DEFAULT_SECTIONS];
+  const sections = [QrSection, CustomTemplateTab, ...DEFAULT_SECTIONS];
+
+
+  Swal.fire({
+    title: "Error!",
+    text: "Do you want to continue",
+    icon: "error",
+    confirmButtonText: "Cool",
+  })
   return (
-   
-    <PolotnoContainer style={{ width: '100vw', height: '100vh' }}>
-      <SidePanelWrap>
-        <SidePanel store={store} sections={sections}  />
-      </SidePanelWrap>
-      <WorkspaceWrap>
-        <Toolbar store={store} components={{ActionControls: Savebutton }} />
-        <Workspace store={store} />
-        <ZoomButtons store={store} />
-      </WorkspaceWrap>
-    </PolotnoContainer>
-  )}
-  export default App;
+    <>
+      <PolotnoContainer style={{ width: "100vw", height: "100vh" }}>
+        <SidePanelWrap>
+          <SidePanel store={store} sections={sections} />
+        </SidePanelWrap>
+        <WorkspaceWrap>
+          <Toolbar store={store} components={{ ActionControls: Savebutton }} />
+          <Workspace store={store} />
+          <ZoomButtons store={store} />
+        </WorkspaceWrap>
+      </PolotnoContainer>
+    </>
+  );
+}
+export default App;
