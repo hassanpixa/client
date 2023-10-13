@@ -4,8 +4,8 @@ import { Button } from "@blueprintjs/core";
 
 const AVAILABLE_SIZES = [
   { width: 1600, height: 720 },
-  { width: 1280, height: 800 },
-  { width: 1280, height: 720 }
+  { width: 1200, height: 720 },
+  { width: 1280, height: 800 }
 ];
 
 export const CustomResizePanel = observer(({ store }) => {

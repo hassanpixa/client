@@ -1,26 +1,30 @@
 import React, { useEffect, useState } from "react";
 import { observer } from "mobx-react-lite";
 import { useInfiniteAPI } from "polotno/utils/use-api";
-import { Jsondata } from "../../../data";
+// import { Jsondata } from "../../../data";
 import { SectionTab } from "polotno/side-panel";
 import MdPhotoLibrary from "@meronex/icons/md/MdPhotoLibrary";
 
-import { ImagesGrid } from "polotno/side-panel/images-grid";
+// import { SectionTab } from 'polotno/side-panel';
+// import MdPhotoLibrary from '@meronex/icons/md/MdPhotoLibrary';
 
+import { ImagesGrid } from 'polotno/side-panel/images-grid';
+import{generateImage} from '../../../utils/pngGenerator';
+import {json} from '../../../data';
 export const TemplatesPanel = observer(({ store }) => {
  
   // const [objectArray, setObjectArray] = useState([]);
  let objectArray=[]
-const urlGn=async(json)=>await store.toDataURL(json)
-for(let item of Jsondata){
-    // const pre= await urlGn(item)
-    objectArray.push( {
-      json:item,
-      prev: urlGn(item),
-    })
+// const urlGn=async(json)=>await store.toDataURL(json)
+// for(let item of json){
+//     // const pre= await urlGn(item)
+//     objectArray.push( {
+//       json:item,
+//       prev: urlGn(item),
+//     })
  
-}
-  console.log(objectArray)
+// }
+//   console.log(objectArray)
   // const addObjectToArray = async(data) => {
   //   const pic = await store.toDataURL(data);
   //     const newObject = {
@@ -40,7 +44,7 @@ for(let item of Jsondata){
   // const { data, isLoading } = useInfiniteAPI({
   //   getAPI: ({ page }) => `templates/page${page}.json`,
   // });
-
+// const pic=generateImage(json)
   return (
     <div style={{ height: "100%" }}>
       {/* <ImagesGrid

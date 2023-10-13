@@ -33,20 +33,18 @@ function App({ store }) {
   );
   // overwrite its panel component
   ResizeSection.Panel = CustomResizePanel;
-  
   const sections = [QrSection,CustomTemplateTab, ...DEFAULT_SECTIONS];
   return (
+   
     <PolotnoContainer style={{ width: '100vw', height: '100vh' }}>
       <SidePanelWrap>
         <SidePanel store={store} sections={sections}  />
       </SidePanelWrap>
       <WorkspaceWrap>
-        <Toolbar store={store}  components={{ActionControls: Savebutton}} hideImageRemoveBackground />
+        <Toolbar store={store} components={{ActionControls: Savebutton }} />
         <Workspace store={store} />
         <ZoomButtons store={store} />
       </WorkspaceWrap>
     </PolotnoContainer>
-  );
-}
-
-export default App;
+  )}
+  export default App;

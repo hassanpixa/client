@@ -1,36 +1,117 @@
 import React from "react";
 import { Button } from "@blueprintjs/core";
 import { useState } from "react";
+const  payload = new FormData();
+const urltoFile=(url, filename, mimeType)=> {
+  // Implement the function to convert a URL to a file and return it.
+  // This implementation can vary depending on your project's requirements.
+  // For example, you might use the Fetch API to download the URL content and create a Blob.
+
+  // Example:
+  return fetch(url)
+    .then((response) => response.blob())
+    .then((blob) => new File([blob], filename, { type: mimeType }));
+}
+
+// Usage:
+// const file = await urltoFile(url, 'example.jpg', 'image/jpeg');
+
 
 
 const Savebutton = ({ store }) => {
+  // const [payload,setPayload]=useState({})
+let json={}
+const saveHandler=async()=>{
+  json=JSON.stringify(await store.toJSON())
+   payload.append("json",json)
+const data=new Date();
+  //  // mobile
+  store.setSize(1600, 720, true);
+  const mobileUrl = await  store.toDataURL({ mimeType: 'image/jpg' });
+  const file1= await urltoFile(mobileUrl, data.getTime() + '.jpg', 'image/jpeg')
+   payload.append("mobile",file1)
+  // tab 
+  store.setSize(1280, 800, true);
+  
+  const tabUrl = await  store.toDataURL({ mimeType: 'image/jpg' });
+  const file2= await urltoFile(tabUrl, data.getTime() + '.jpg', 'image/jpeg')
+   payload.append("tab",file2,)
+  //  payload.push({
+  //   tabUrl:file3
+  // });
+  
+  //  payload.push({
+  //   mobileUrl:file3
+  // });
+  // tv file
+  store.setSize(1280, 720, true);
+  const tvUrl = await  store.toDataURL({ mimeType: 'image/jpg' });
+  const file3= await urltoFile(tvUrl, data.getTime() + '.jpg', 'image/jpeg')
+   payload.append("tv",file3)
+ 
+  //  payload.push({
+  //   tvUrl:file3
+  // });
+  // setPayload({
+  //   json:json,
+  //   types: payload
+  // })
+  for (const [key, value] of  payload) {
+    console.log( `${key}: ${value}\n`)
+  }
+  // console.log( payload)
+}
+for (const [key, value] of  payload) {
+  console.log( `${key}: ${value}\n`)
+}
+  return (
+    <div>
+      <Button
+        onClick={() => {
+          store.saveAsImage({ pixelRatio: 0.2 });
+        }}
+      >
+        Download Preview
+      </Button>
+      <Button onClick={saveHandler}>Save</Button>
+    </div>
+  );
+};
 
-  const [templates, setTemplates] = useState({
-    total_pages: 0,
-    items: [],
-  });
-  let counter = 0
+export default Savebutton;
+// setTimeout(async()=>{
+//   // mobile
+//   const mbDate=new Date();
+// await store.setSize(1600, 720, true);
+// const mobileUrl = await  store.toDataURL({ mimeType: 'image/jpg' });
+// const file1= await urltoFile(mobileUrl, mbDate.getTime() + '.jpg', 'image/jpeg')
+// payload.append("mobile",file1)
+// setTimeout(async()=>{
+// await store.setSize(1280, 800, true);
+// const data=new Date();
+// const tabUrl = await  store.toDataURL({ mimeType: 'image/jpg' });
+// const file2= await urltoFile(tabUrl, data.getTime() + '.jpg', 'image/jpeg')
+// payload.append("tab",file2,)
+// setTimeout(async ()=>{
+//   const tvDate=new Date();
+//   await store.setSize(1280, 720, true);
+//   const tvUrl = await  store.toDataURL({ mimeType: 'image/jpg' });
+//   const file3= await urltoFile(tvUrl, tvDate.getTime() + '.jpg', 'image/jpeg')
+//    payload.append("tv",file3)
+//    store.setSize(1280, 800, true);
+// },200)
+// },200)
+// },200)
+//  file handle logic
+  // const [counter,SetCounter] = useState(0)
   // const saveHandler = async () => {
+  //   SetCounter(counter + 1)
   //   try {
   //     const pic = await store.toDataURL();
   //     const json = await store.toJSON();
-      
-  //     const now = new Date();
-  //     const timestamp = now.toISOString().replace(/[:.]/g, "-"); // Replace invalid characters with hyphens
   
-  //     // Replace any remaining invalid characters in the timestamp with underscores
-  //     const validTimestamp = timestamp.replace(/[^a-zA-Z0-9-_]/g, "_");
-  
-  //     const newTemplate = {
-  //       json: json,
-  //       preview: pic,
-  //     };
-  //     counter++;
-  
-  //     setTemplates((prevTemplates) => ({
-  //       total_pages: counter,
-  //       items: [...prevTemplates.items, { ...newTemplate }],
-  //     }));
+  //     console.log('pic', pic);
+  //     console.log('json', json);
   
   //     // Create a Blob with the JSON content
   //     const jsonBlob = new Blob([JSON.stringify(json)], {
@@ -48,18 +129,18 @@ const Savebutton = ({ store }) => {
   //     // Create a file handle for the "templates" directory
   //     const templatesDirectory = await window.showDirectoryPicker();
   
-  //     // Create and save JSON file with valid timestamp in the name
+  //     // Create and save JSON file
   //     const jsonFileHandle = await templatesDirectory.getFileHandle(
-  //       `template_${validTimestamp}.json`,
+  //       "template.json",
   //       { create: true }
   //     );
   //     const jsonWritable = await jsonFileHandle.createWritable();
   //     await jsonWritable.write(jsonBlob);
   //     await jsonWritable.close();
   
-  //     // Create and save PNG file with valid timestamp in the name
+  //     // Create and save PNG file
   //     const pngFileHandle = await templatesDirectory.getFileHandle(
-  //       `template_${validTimestamp}.png`,
+  //       "template.png",
   //       { create: true }
   //     );
   //     const pngWritable = await pngFileHandle.createWritable();
@@ -70,54 +151,3 @@ const Savebutton = ({ store }) => {
   //   }
   // };
   
-  const saveHandler = async () => {
-    const jsonData = store.toJSON();
-
-    const jsonString = JSON.stringify(jsonData, null, 2);
-
-    const timestamp = new Date().getTime();
-    const randomString = Math.random().toString(36).substring(7);
-    const fileName = `data_${timestamp}_${randomString}.json`;
-
-    const blob = new Blob([jsonString], { type: "application/json" });
-
-    try {
-      const fileHandle = await window.showSaveFilePicker({
-        suggestedName: fileName,
-        types: [
-          {
-            description: "JSON Files",
-            accept: {
-              "application/json": [".json"],
-            },
-          },
-        ],
-      });
-
-      const writable = await fileHandle.createWritable();
-      await writable.write(blob);
-      await writable.close();
-
-      alert("JSON file saved successfully!");
-    } catch (error) {
-      console.error("Error saving JSON file:", error);
-      alert("Error saving JSON file. Check the console for details.");
-    }
-  };
-  
-
-  return (
-    <div>
-      <Button
-        onClick={() => {
-          store.saveAsImage({ pixelRatio: 0.2 });
-        }}
-      >
-        Download Preview
-      </Button>
-      <Button onClick={saveHandler}>Save</Button>
-    </div>
-  );
-};
-
-export default Savebutton;

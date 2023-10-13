@@ -11,7 +11,7 @@ import '@blueprintjs/popover2/lib/css/blueprint-popover2.css';
 
 // Create a Polotno store without adding any initial page or element
 const polotnoStore = createStore();
-polotnoStore.clear();
+// polotnoStore.clear();
 polotnoStore.addPage()
 
 polotnoStore.setSize(1280, 800, true);
