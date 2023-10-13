@@ -41,7 +41,7 @@ function App({ store }) {
         <SidePanel store={store} sections={sections}  />
       </SidePanelWrap>
       <WorkspaceWrap>
-        <Toolbar store={store} components={{ActionControls: Savebutton}} />
+        <Toolbar store={store} components={{ActionControls: Savebutton }} />
         <Workspace store={store} />
         <ZoomButtons store={store} />
       </WorkspaceWrap>
