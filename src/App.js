@@ -4,13 +4,14 @@ import { Toolbar } from "polotno/toolbar/toolbar";
 import { ZoomButtons } from "polotno/toolbar/zoom-buttons";
 import { SidePanel } from "polotno/side-panel";
 import { Workspace } from "polotno/canvas/workspace";
-import { QrSection, getQR } from "./utils/polotnoQrSection";
+import { QrSection, getQR } from "polotno-editor/components/customQrTab/CustomQrTab";
 import { DEFAULT_SECTIONS } from "polotno/side-panel";
 import Savebutton from "./polotno-editor/components/saveButton/Savebutton";
-import { CustomTemplateTab } from "./polotno-editor/components/customTemplateTab/CustomTemplateTab";
-import { CustomResizePanel } from "./polotno-editor/components/customResizePanel/CustomResizePanel";
+import { CustomTemplateTab } from "polotno-editor/components/customTemplateTab/CustomTemplateTab";
+import { CustomResizePanel } from "polotno-editor/components/customResizePanel/CustomResizePanel";
 import Swal from "sweetalert2";
 import { useDispatch, useSelector } from "react-redux";
+
 // import { useEffect } from "react";
 import {payloadHandler} from 'utils/payloadGenerator';
 import { hidePopUpHandler } from "store/slices/uiSlice";
@@ -29,13 +30,14 @@ function App({polotnoStore }) {
 
 
   const showPopUp = useSelector((state) => state.ui.showPopUp);
+  const qrBtn = useSelector((state) => state.ui.addQr);
   const dispatch = useDispatch();
 
 if (showPopUp) {
   Swal.fire({
     title: "Do you want to save the changes?",
     showDenyButton: true,
-    showCancelButton: true,
+    showCancelButton: !qrBtn,
     confirmButtonText: "Save",
     denyButtonText: `Don't save`,
     cancelButtonText: `Add Qr`,

@@ -3,12 +3,12 @@ import { createSlice } from "@reduxjs/toolkit";
 export const uiSlice = createSlice({
   name: "ui",
   initialState: {
-    addQr: 0,
+    addQr: false,
     showPopUp: false,
   },
   reducers: {
     qrHandler: (state) => {
-      state.addQr += state.addQr;
+      state.addQr = true;
     },
     showPopUpHandler: (state) => {
       state.showPopUp = true;
