@@ -24,14 +24,16 @@ function App({polotnoStore }) {
   // overwrite its panel component
   ResizeSection.Panel = CustomResizePanel;
   const sections = [QrSection, CustomTemplateTab, ...DEFAULT_SECTIONS];
+// redux states
+const showPopUp = useSelector((state) => state.ui.showPopUp);
+const qrBtn = useSelector((state) => state.ui.addQr);
+const popUpImg = useSelector((state) => state.ui.popUpImg);
+const dispatch = useDispatch();
 
 
 
 
-
-  const showPopUp = useSelector((state) => state.ui.showPopUp);
-  const qrBtn = useSelector((state) => state.ui.addQr);
-  const dispatch = useDispatch();
+ 
 
 if (showPopUp) {
   Swal.fire({
@@ -39,12 +41,15 @@ if (showPopUp) {
     showDenyButton: true,
     showCancelButton: !qrBtn,
     confirmButtonText: "Save",
-    denyButtonText: `Don't save`,
+    denyButtonText: `Cancel`,
     cancelButtonText: `Add Qr`,
-    imageUrl: "https://unsplash.it/400/200",
+    imageUrl: popUpImg,
     imageWidth: 400,
     imageHeight: 200,
     imageAlt: "Custom image",
+    customClass:{
+      confirmButton:"save_button_popUP",
+    },
   }).then((result) => {
     if (result.isConfirmed) {
       payloadHandler(polotnoStore)
@@ -60,7 +65,7 @@ if (showPopUp) {
       //   console.error("Error in payloadHandler:", error);
       // });
     } else if (result.isDenied) {
-      Swal.fire("Changes are not saved", "", "info");
+      dispatch(hidePopUpHandler());
     }else if (result.isDismissed) {
       // Swal.fire("Changes are not saved", "", "info");
       polotnoStore.openSidePanel('qr')

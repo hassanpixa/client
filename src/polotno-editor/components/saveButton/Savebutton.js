@@ -3,7 +3,7 @@ import { Button } from "@blueprintjs/core";
 // import { useState } from "react";
 import { useDispatch,useSelector } from "react-redux";
 
-import { showPopUpHandler } from "../../../store/slices/uiSlice";
+import { showPopUpHandler,popUpImgHandler } from "../../../store/slices/uiSlice";
 
 
 
@@ -18,7 +18,11 @@ const Savebutton = ({ store }) => {
   // const [payload,setPayload]=useState({})
   
   const saveHandler = async () => {
+    
     if(!showPopUp){
+      const imgUrl=await store.toDataURL();
+      
+      dispatch(popUpImgHandler(imgUrl));
       dispatch(showPopUpHandler());
     }
    else {
