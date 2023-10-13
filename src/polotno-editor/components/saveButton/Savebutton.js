@@ -1,68 +1,31 @@
 import React from "react";
 import { Button } from "@blueprintjs/core";
-import { useState } from "react";
-import { useDispatch } from "react-redux";
+// import { useState } from "react";
+import { useDispatch,useSelector } from "react-redux";
 
-import { showPopUpHandler } from "store/slices/uiSlice";
-const payload = new FormData();
-const urltoFile = (url, filename, mimeType) => {
-  // Implement the function to convert a URL to a file and return it.
-  // This implementation can vary depending on your project's requirements.
-  // For example, you might use the Fetch API to download the URL content and create a Blob.
+import { showPopUpHandler } from "../../../store/slices/uiSlice";
 
-  // Example:
-  return fetch(url)
-    .then((response) => response.blob())
-    .then((blob) => new File([blob], filename, { type: mimeType }));
-};
+
 
 // Usage:
 // const file = await urltoFile(url, 'example.jpg', 'image/jpeg');
 
 const Savebutton = ({ store }) => {
   const dispatch = useDispatch();
-
+  const showPopUp = useSelector((state) => state.ui.showPopUp);
  
 
   // const [payload,setPayload]=useState({})
-  let json = {};
+  
   const saveHandler = async () => {
-    dispatch(showPopUpHandler());
+    if(!showPopUp){
+      dispatch(showPopUpHandler());
+    }
+   else {
+    return
+   }
 
-    json = JSON.stringify(await store.toJSON());
-    payload.append("json", json);
-    const data = new Date();
-    //  // mobile
-    store.setSize(1600, 720, true);
-    const mobileUrl = await store.toDataURL({ mimeType: "image/jpg" });
-    const file1 = await urltoFile(
-      mobileUrl,
-      data.getTime() + ".jpg",
-      "image/jpeg"
-    );
-    payload.append("mobile", file1);
-    // tab
-    store.setSize(1280, 800, true);
-
-    const tabUrl = await store.toDataURL({ mimeType: "image/jpg" });
-    const file2 = await urltoFile(
-      tabUrl,
-      data.getTime() + ".jpg",
-      "image/jpeg"
-    );
-    payload.append("tab", file2);
-    //  payload.push({
-    //   tabUrl:file3
-    // });
-
-    //  payload.push({
-    //   mobileUrl:file3
-    // });
-    // tv file
-    store.setSize(1280, 720, true);
-    const tvUrl = await store.toDataURL({ mimeType: "image/jpg" });
-    const file3 = await urltoFile(tvUrl, data.getTime() + ".jpg", "image/jpeg");
-    payload.append("tv", file3);
+   
 
     //  payload.push({
     //   tvUrl:file3
@@ -71,14 +34,11 @@ const Savebutton = ({ store }) => {
     //   json:json,
     //   types: payload
     // })
-    for (const [key, value] of payload) {
-      console.log(`${key}: ${value}\n`);
-    }
+  
     // console.log( payload)
+
   };
-  for (const [key, value] of payload) {
-    console.log(`${key}: ${value}\n`);
-  }
+  
   return (
     <div>
       <Button
