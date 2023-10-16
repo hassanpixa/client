@@ -11,6 +11,27 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+
+:root{
+  --primary-btn:#244105;
+  --secondary-btn:#6e7881;
+  --cancel-btn:#dc3741ed;
+}
+
+/* ============= BUTTON BG COLOR UTIL =============== */
+.primary_btn{
+  background: var(--primary-btn) !important;
+}
+.secondary_btn{
+  background: var(--secondary-btn) !important;
+}
+.clear_btn{
+  background: var(--cancel-btn) !important;
+}
+
+
+
 /* css for pop */
 /* 
 customClass: {
@@ -41,3 +62,49 @@ customClass: {
  border-color: #244105 !important;
   background-color:  #244105 !important;
 }
+
+/* QR input */
+.qr_input{
+  border: 1px solid !important;
+  border-radius: 5px !important;
+  font-size: 1em !important;
+  margin-bottom: 20px;
+}
+/* QR button  */
+.qr_button_div{
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+.qr_button{
+  border: 0 !important;
+  border-radius: 0.25em !important;
+  color: #fff !important;
+  font-size: 1em !important;
+}
+
+
+/* =============== POLOTNO STYLES ================ */
+
+ /* overwrite colors for side-panel tabs */
+ .bp5-dark .polotno-side-tabs-container .polotno-side-panel-tab:hover,
+ .bp5-dark .polotno-side-tabs-container .polotno-side-panel-tab.active {
+   background-color: #c8c52d !important;
+   color: white !important;
+ }
+
+ /* change hover style of all buttons */
+ .bp5-dark .bp5-button:not([class*='bp5-intent-']):hover {
+   background-color: #c8c52d !important;
+ }
+
+ /* change main color of all active buttons */
+ .bp5-dark
+   .polotno-app-container
+   .bp5-button:not([class*='bp5-intent-'])
+   .bp5-icon:not([class*='bp5-intent-']) {
+   color: white !important;
+ }
+ .bp5-dark .polotno-app-container .bp5-button.bp5-minimal.bp5-disabled {
+   color: rgba(171, 179, 191, 0.6) !important;
+ }
