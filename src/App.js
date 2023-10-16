@@ -89,7 +89,7 @@ if (showPopUp) {
  
   return (
     <>
-      <PolotnoContainer style={{ width: "100vw", height: "100vh" }}>
+      <PolotnoContainer style={{ width: "100vw", height: "100vh" }} className="polotno-app-container bp5-dark">
         <SidePanelWrap>
           <SidePanel store={polotnoStore} sections={sections} />
         </SidePanelWrap>
