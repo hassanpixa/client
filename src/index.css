@@ -41,3 +41,8 @@ customClass: {
  border-color: #244105 !important;
   background-color:  #244105 !important;
 }
+/* css for toolbar actions */
+.toolbar_actions_container{
+  display: flex;
+  flex-wrap: wrap;
+}

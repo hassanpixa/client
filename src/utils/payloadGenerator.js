@@ -52,6 +52,7 @@ export const payloadHandler = async (store) => {
         const tvUrl = await store.toDataURL({ mimeType: "image/jpg" });
         const file3 = await urltoFile(tvUrl, data.getTime() + ".jpg", "image/jpeg");
         payload.append("tv", file3);
+        store.setSize(1600, 720, true);
         return payload;
    
 

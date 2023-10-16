@@ -11,28 +11,14 @@ import MdPhotoLibrary from "@meronex/icons/md/MdPhotoLibrary";
 import { ImagesGrid } from 'polotno/side-panel/images-grid';
 import{generateImage} from '../../../utils/pngGenerator';
 import {json} from '../../../data';
+import { useSelector } from "react-redux";
+// dummy store slice for img grid
+
 export const TemplatesPanel = observer(({ store }) => {
+const templates=useSelector(state=>state.templates.templates) 
+  
  
-  // const [objectArray, setObjectArray] = useState([]);
- let objectArray=[]
-// const urlGn=async(json)=>await store.toDataURL(json)
-// for(let item of json){
-//     // const pre= await urlGn(item)
-//     objectArray.push( {
-//       json:item,
-//       prev: urlGn(item),
-//     })
- 
-// }
-//   console.log(objectArray)
-  // const addObjectToArray = async(data) => {
-  //   const pic = await store.toDataURL(data);
-  //     const newObject = {
-  //       json: data,
-  //       prev: pic,
-  //     };
-  //   setObjectArray((prevArray) => [...prevArray, newObject]);
-  // };
+
   // useEffect(() => {
   //   // Add your JSON data to the objectArray when the component mounts
   //   Jsondata.forEach((data) => {
@@ -47,27 +33,16 @@ export const TemplatesPanel = observer(({ store }) => {
 // const pic=generateImage(json)
   return (
     <div style={{ height: "100%" }}>
-      {/* <ImagesGrid
-        shadowEnabled={false}
-        images={data?.map((data) => data.items).flat()}
-        getPreview={(item) => `/templates/${item.preview}`}
-        isLoading={isLoading}
-        onSelect={async (item) => {
-          const req = await fetch(`/templates/${item.json}`);
-          const json = await req.json();
-          store.loadJSON(json);
-        }}
-        rowsNumber={1}
-      /> */}
+    
       <ImagesGrid
         shadowEnabled={false}
         // images={data?.map((data) => data.items).flat()}
         // images={[{ preview: imageBase64, json: Jsondata }]}
-        images={objectArray?.map((data) => data).flat()}
+        images={templates?.map((data) => data.prev).flat()}
         getPreview={(item) => {
           // console.log(objectArray[0].prev)
           
-          const obj= objectArray?.find(it=>it.prev===item?.prev)
+          const obj= templates?.find(it=>it.prev===item)
           // console.log(item)
           // setLoading(true)
           return obj?.prev
@@ -76,7 +51,8 @@ export const TemplatesPanel = observer(({ store }) => {
         onSelect={async(item) => {
           
           // setLoading(true)
-          const obj = objectArray?.find(it => it.prev === item.prev )
+          const obj = templates?.find(it => it.prev === item)
+          
           await store.loadJSON(obj.json);
         }}
         // rowsNumber={1}

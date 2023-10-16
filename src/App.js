@@ -15,6 +15,7 @@ import { useDispatch, useSelector } from "react-redux";
 // import { useEffect } from "react";
 import {payloadHandler} from 'utils/payloadGenerator';
 import { hidePopUpHandler } from "store/slices/uiSlice";
+import { addTemplates } from "store/slices/templateSlice";
 // import createStore from "polotno/model/store";
 function App({polotnoStore }) {
 
@@ -50,12 +51,18 @@ if (showPopUp) {
     customClass:{
       confirmButton:"save_button_popUP",
     },
-  }).then((result) => {
+  }).then(async(result) => {
     if (result.isConfirmed) {
+      const json=await polotnoStore.toJSON();
+      const prev=await polotnoStore.toDataURL({ mimeType: "image/jpg" });
+      dispatch(addTemplates({
+        json,
+        prev
+      }))
       payloadHandler(polotnoStore)
       .then((formData) => {
         // Use the formData object here
-        console.log("formData", formData)
+        
         for(let it of formData){
         console.log(it)
       }

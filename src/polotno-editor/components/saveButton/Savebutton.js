@@ -58,13 +58,22 @@ const Savebutton = ({ store }) => {
   };
   
   return (
-    <div>
+    <div className="toolbar_actions_container">
       <Button
         onClick={() => {
-          store.saveAsImage({ pixelRatio: 0.2 });
+          store.saveAsImage();
         }}
       >
         Download Preview
+      </Button>
+      <Button
+        onClick={() => {
+          store.clear({
+            keepHistory:true
+          });
+        }}
+      >
+        Clear All
       </Button>
       <Button onClick={saveHandler}>Save</Button>
     </div>
