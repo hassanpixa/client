@@ -22,7 +22,7 @@ export const payloadHandler = async (store) => {
         payload.append("json", json);
         const data = new Date();
         //  // mobile
-        store.setSize(1600, 720, true);
+        store.setSize(1600, 720);
         const mobileUrl = await store.toDataURL({ mimeType: "image/jpg" });
         const file1 = await urltoFile(
             mobileUrl,
@@ -31,7 +31,7 @@ export const payloadHandler = async (store) => {
         );
         payload.append("mobile", file1);
         // tab
-        store.setSize(1280, 800, true);
+        store.setSize(1280, 800);
 
         const tabUrl = await store.toDataURL({ mimeType: "image/jpg" });
         const file2 = await urltoFile(
@@ -48,11 +48,11 @@ export const payloadHandler = async (store) => {
         //   mobileUrl:file3
         // });
         // tv file
-        store.setSize(1280, 720, true);
+        store.setSize(1280, 720);
         const tvUrl = await store.toDataURL({ mimeType: "image/jpg" });
         const file3 = await urltoFile(tvUrl, data.getTime() + ".jpg", "image/jpeg");
         payload.append("tv", file3);
-        store.setSize(1600, 720, true);
+        store.setSize(1280, 800, true);
         return payload;
    
 
