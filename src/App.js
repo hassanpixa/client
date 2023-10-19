@@ -38,8 +38,13 @@ function App({ polotnoStore }) {
   const popUpImg = useSelector((state) => state.ui.popUpImg);
   const dispatch = useDispatch();
 
+  const urltoFile = async (url, filename, mimeType) => {
+    const response = await fetch(url);
+    const blob = await response.blob();
+    return new File([blob], filename, { type: mimeType });
+  };
   const sendTemplate = async () => {
-    const templateJson = await polotnoStore.toJSON();
+    const templateJson = JSON.stringify(await polotnoStore.toJSON());
     const data = {
       user_id: "1",
       settings: templateJson,
@@ -56,6 +61,102 @@ function App({ polotnoStore }) {
           withCredentials: true,
           xsrfHeaderName: "X-XSRF-TOKEN",
           headers: headers,
+        }
+      );
+      console.log("data", res);
+    } catch (error) {
+      console.log("error in API", error.message);
+    }
+  };
+
+  // const sendImage = async () => {
+  //   const payload = new FormData();
+  //   const data = new Date();
+  //   //mobile
+  //   polotnoStore.setSize(1600, 720);
+  //   const mobileUrl = await polotnoStore.toDataURL({ mimeType: "image/jpg" });
+  //   const file1 = await urltoFile(
+  //     mobileUrl,
+  //     data.getTime() + ".jpg",
+  //     "image/jpeg"
+  //   );
+  //   payload.append("mobile", file1);
+
+  //   // tab
+  //   polotnoStore.setSize(1280, 800);
+
+  //   const tabUrl = await polotnoStore.toDataURL({ mimeType: "image/jpg" });
+  //   const file2 = await urltoFile(
+  //     tabUrl,
+  //     data.getTime() + ".jpg",
+  //     "image/jpeg"
+  //   );
+  //   payload.append("tab", file2);
+
+  //   // tv
+  //   polotnoStore.setSize(1280, 720);
+  //   const tvUrl = await polotnoStore.toDataURL({ mimeType: "image/jpg" });
+  //   const file3 = await urltoFile(tvUrl, data.getTime() + ".jpg", "image/jpeg");
+  //   payload.append("tv", file3);
+
+  //   polotnoStore.setSize(1280, 800, true);
+
+  //   try {
+  //     const res = await axios.post(
+  //       "http://somo-marketing.local/api/upload-media",
+  //       payload,
+  //       {
+  //         withCredentials: true,
+  //         xsrfHeaderName: "X-XSRF-TOKEN",
+  //       }
+  //     );
+  //     console.log("data", res);
+  //   } catch (error) {
+  //     console.log("error in API", error.message);
+  //   }
+  //   for (let it of payload) {
+  //     console.log(it);
+  //   }
+  // };
+
+  const sendImage = async () => {
+    const sizes = [
+      { width: 1600, height: 720 }, // mobile
+      { width: 1280, height: 720 }, // tab
+      { width: 1280, height: 800 }, // tv
+    ];
+
+    async function processSizeAndAppendToPayload(width, height, key) {
+      console.log(width, height, key, "DATA");
+      const payload = new FormData();
+      const data = new Date();
+      polotnoStore.setSize(width, height);
+      const url = await polotnoStore.toDataURL({ mimeType: "image/jpg" });
+      const file = await urltoFile(url, data.getTime() + ".jpg", "image/jpeg");
+      payload.append("media[]", file);
+      payload.append("user_id", "1");
+      payload.append("other", "Ads");
+      payload.append("device_type", key);
+      await imgAPI(payload, key);
+    }
+    (async () => {
+      const keys = ["mobile", "tab", "tv"];
+      sizes.forEach(async (i, index) => {
+        await processSizeAndAppendToPayload(i.width, i.height, keys[index]);
+      });
+    })();
+  };
+  const imgAPI = async (payload, key) => {
+    for (let it of payload) {
+      console.log(it, key);
+    }
+    try {
+      const res = await axios.post(
+        "http://somo-marketing.local/api/upload-media",
+        payload,
+        {
+          withCredentials: true,
+          xsrfHeaderName: "X-XSRF-TOKEN",
         }
       );
       console.log("data", res);
@@ -81,8 +182,8 @@ function App({ polotnoStore }) {
       },
     }).then(async (result) => {
       if (result.isConfirmed) {
-        sendTemplate();
-
+        await sendTemplate();
+        // await sendImage();
         // const json = await polotnoStore.toJSON();
         // const prev = await polotnoStore.toDataURL({ mimeType: "image/jpg" });
         // dispatch(
@@ -91,13 +192,13 @@ function App({ polotnoStore }) {
         //     prev,
         //   })
         // );
-        payloadHandler(polotnoStore).then((formData) => {
-          // Use the formData object here
-          // for (let it of formData) {
-          //   console.log(it)
-          // }
-          // Send the formData as needed (e.g., via fetch)
-        });
+        // payloadHandler(polotnoStore).then((formData) => {
+        //   Use the formData object here
+        //   for (let it of formData) {
+        //     console.log(it)
+        //   }
+        //   Send the formData as needed (e.g., via fetch)
+        // });
         // .catch((error) => {
         //   console.error("Error in payloadHandler:", error);
         // });

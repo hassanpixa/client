@@ -4,21 +4,35 @@ import { useInfiniteAPI } from "polotno/utils/use-api";
 // import { Jsondata } from "../../../data";
 import { SectionTab } from "polotno/side-panel";
 import MdPhotoLibrary from "@meronex/icons/md/MdPhotoLibrary";
-
+import axios from "api/axios";
 // import { SectionTab } from 'polotno/side-panel';
 // import MdPhotoLibrary from '@meronex/icons/md/MdPhotoLibrary';
 
-import { ImagesGrid } from 'polotno/side-panel/images-grid';
-import{generateImage} from '../../../utils/pngGenerator';
-import {json} from '../../../data';
+import { ImagesGrid } from "polotno/side-panel/images-grid";
+import { generateImage } from "../../../utils/pngGenerator";
+import { json } from "../../../data";
 import { useSelector } from "react-redux";
 // dummy store slice for img grid
 
 export const TemplatesPanel = observer(({ store }) => {
-const templates=useSelector(state=>state.templates.templates) 
-  
- 
+  const templates = useSelector((state) => state.templates.templates);
 
+  const [customTemplates, SetCustomTemplates] = useState([]);
+
+  const getTemplate = async () => {
+    try {
+      const res = await axios.get(
+        "https://car.develop.somomarketingtech.com/api/template"
+      );
+      SetCustomTemplates((prev)=> [...prev,{ json: res }]);
+      console.log("data from API IS ", res?.data?.result?.templates?.data);
+    } catch (error) {
+      console.log("error in API", error.message);
+    }
+  };
+  useEffect(() => {
+    getTemplate();
+  }, []);
   // useEffect(() => {
   //   // Add your JSON data to the objectArray when the component mounts
   //   Jsondata.forEach((data) => {
@@ -30,10 +44,9 @@ const templates=useSelector(state=>state.templates.templates)
   // const { data, isLoading } = useInfiniteAPI({
   //   getAPI: ({ page }) => `templates/page${page}.json`,
   // });
-// const pic=generateImage(json)
+  // const pic=generateImage(json)
   return (
     <div style={{ height: "100%" }}>
-    
       <ImagesGrid
         shadowEnabled={false}
         // images={data?.map((data) => data.items).flat()}
@@ -41,18 +54,17 @@ const templates=useSelector(state=>state.templates.templates)
         images={templates?.map((data) => data.prev).flat()}
         getPreview={(item) => {
           // console.log(objectArray[0].prev)
-          
-          const obj= templates?.find(it=>it.prev===item)
+
+          const obj = templates?.find((it) => it.prev === item);
           // console.log(item)
           // setLoading(true)
-          return obj?.prev
+          return obj?.prev;
         }}
         // isLoading={loading}
-        onSelect={async(item) => {
-          
+        onSelect={async (item) => {
           // setLoading(true)
-          const obj = templates?.find(it => it.prev === item)
-          
+          const obj = templates?.find((it) => it.prev === item);
+
           await store.loadJSON(obj.json);
         }}
         // rowsNumber={1}
