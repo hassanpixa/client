@@ -49,7 +49,7 @@ function App({ polotnoStore }) {
       user_id: "1",
       settings: templateJson,
     };
-    console.log(templateJson);
+    // console.log(templateJson);
     try {
       const headers = {
         "Content-Type": "application/json",
@@ -125,12 +125,13 @@ function App({ polotnoStore }) {
       { width: 1280, height: 720 }, // tab
       { width: 1280, height: 800 }, // tv
     ];
-
+    const keys = ["mobile", "tab", "tv"];
     async function processSizeAndAppendToPayload(width, height, key) {
-      console.log(width, height, key, "DATA");
+      // console.log(width, height, key, "DATA");
       const payload = new FormData();
       const data = new Date();
-      polotnoStore.setSize(width, height);
+      await polotnoStore.waitLoading()
+      polotnoStore.setSize(width, height,true);
       const url = await polotnoStore.toDataURL({ mimeType: "image/jpg" });
       const file = await urltoFile(url, data.getTime() + ".jpg", "image/jpeg");
       payload.append("media[]", file);
@@ -140,19 +141,18 @@ function App({ polotnoStore }) {
       await imgAPI(payload, key);
     }
     (async () => {
-      const keys = ["mobile", "tab", "tv"];
-      sizes.forEach(async (i, index) => {
-        await processSizeAndAppendToPayload(i.width, i.height, keys[index]);
-      });
+      for (let i = 0; i < sizes.length; i++) {
+        await processSizeAndAppendToPayload(sizes[i].width, sizes[i].height, keys[i]);
+      }
     })();
   };
   const imgAPI = async (payload, key) => {
-    for (let it of payload) {
-      console.log(it, key);
-    }
+    // for (let it of payload) {
+    //   console.log(it, key);
+    // }
     try {
       const res = await axios.post(
-        "http://somo-marketing.local/api/upload-media",
+        "https://car.develop.somomarketingtech.com/api/upload-media",
         payload,
         {
           withCredentials: true,
@@ -183,7 +183,7 @@ function App({ polotnoStore }) {
     }).then(async (result) => {
       if (result.isConfirmed) {
         await sendTemplate();
-        // await sendImage();
+        await sendImage();
         // const json = await polotnoStore.toJSON();
         // const prev = await polotnoStore.toDataURL({ mimeType: "image/jpg" });
         // dispatch(
