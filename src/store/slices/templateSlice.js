@@ -1,6 +1,7 @@
 import { createSlice } from "@reduxjs/toolkit";
 const intialStates={
-  templates:[]
+  templates:[],
+  templateId:null
 }
 export const templateSlice=createSlice({
     name:"templates",
@@ -8,8 +9,11 @@ export const templateSlice=createSlice({
     reducers:{
         addTemplates:(state,action)=>{
             state.templates.push(action.payload)
+        },
+        addId:(state,action)=>{
+            state.templateId = action.payload
         }
     }
 })
-export const {addTemplates}=templateSlice.actions;
+export const {addTemplates,addId}=templateSlice.actions;
 export default templateSlice.reducer;

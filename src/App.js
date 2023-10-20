@@ -24,8 +24,10 @@ import { payloadHandler } from "utils/payloadGenerator";
 import { hidePopUpHandler } from "store/slices/uiSlice";
 import { addTemplates } from "store/slices/templateSlice";
 import { json } from "data";
+import { useState } from "react";
 // import createStore from "polotno/model/store";
 function App({ polotnoStore }) {
+  const [idTemplates, SetIdTemplates] = useState();
   const ResizeSection = DEFAULT_SECTIONS.find(
     (section) => section.name === "size"
   );
@@ -39,35 +41,102 @@ function App({ polotnoStore }) {
   const dispatch = useDispatch();
 
   const urltoFile = async (url, filename, mimeType) => {
-    const response = await fetch(url);
-    const blob = await response.blob();
-    return new File([blob], filename, { type: mimeType });
+    const response = await fetch(url)
+      .then((res) => {
+        return res.blob();
+      })
+      .then((blob) => {
+        return new File([blob], filename, { type: blob.type });
+      });
+    return response;
   };
+
+  // API HIT FOR TEMPLATES JSON
   const sendTemplate = async () => {
     const templateJson = JSON.stringify(await polotnoStore.toJSON());
     const data = {
       user_id: "1",
       settings: templateJson,
     };
-    // console.log(templateJson);
     try {
       const headers = {
         "Content-Type": "application/json",
+        Accept: "application/json",
       };
       const res = await axios.post(
         "https://car.develop.somomarketingtech.com/api/template",
         data,
         {
-          withCredentials: true,
-          xsrfHeaderName: "X-XSRF-TOKEN",
           headers: headers,
         }
       );
-      console.log("data", res);
+      console.log("TEMPLATE API RESPONSE --------", res);
+      console.log("TEMPLATE ID --------", res?.data?.result?.template?.id);
+      return res?.data?.result?.template?.id
     } catch (error) {
-      console.log("error in API", error.message);
+      console.log("error TEMPLATE API", error.message);
     }
   };
+
+
+
+  // API HIT FOR MEDIA
+  const sendImage = async (id) => {
+    const sizes = [
+      { width: 1600, height: 720 }, // mobile
+      { width: 1280, height: 720 }, // tab
+      { width: 1280, height: 800 }, // tv
+    ];
+    const keys = ["mobile", "tab", "tv"];
+    async function processSizeAndAppendToPayload(width, height, key) {
+      // console.log(width, height, key, "DATA");
+      const payload = new FormData();
+      const data = new Date();
+      await polotnoStore.waitLoading();
+      polotnoStore.setSize(width, height, true);
+      const url = await polotnoStore.toDataURL({ mimeType: "image/jpg" });
+      const file = await urltoFile(url, data.getTime() + ".jpg", "image/jpeg");
+      console.log(file, "----------file");
+      payload.append("media[]", file);
+      payload.append("user_id", "1");
+      payload.append("other", "Ads");
+      payload.append("device_type", key);
+      payload.append("template_id",id);
+      await imgAPI(payload, key);
+    }
+    (async () => {
+      for (let i = 0; i < sizes.length; i++) {
+        await processSizeAndAppendToPayload(
+          sizes[i].width,
+          sizes[i].height,
+          keys[i]
+        );
+      }
+    })();
+  };
+  const imgAPI = async (payload, key) => {
+    // for (let it of payload) {
+    //   console.log(it, key);
+    // }
+    const headers = {
+      Accept: "application/json",
+    };
+    try {
+      const res = await axios.post(
+        "https://car.develop.somomarketingtech.com/api/upload-media",
+        payload,
+        {
+          headers: headers,
+        }
+      );
+      console.log(`MEDIA-${key}`, res);
+    } catch (error) {
+      console.log(`error API MEDIA-${key}`, error.message);
+    }
+  };
+
+
+
 
   // const sendImage = async () => {
   //   const payload = new FormData();
@@ -119,52 +188,6 @@ function App({ polotnoStore }) {
   //   }
   // };
 
-  const sendImage = async () => {
-    const sizes = [
-      { width: 1600, height: 720 }, // mobile
-      { width: 1280, height: 720 }, // tab
-      { width: 1280, height: 800 }, // tv
-    ];
-    const keys = ["mobile", "tab", "tv"];
-    async function processSizeAndAppendToPayload(width, height, key) {
-      // console.log(width, height, key, "DATA");
-      const payload = new FormData();
-      const data = new Date();
-      await polotnoStore.waitLoading()
-      polotnoStore.setSize(width, height,true);
-      const url = await polotnoStore.toDataURL({ mimeType: "image/jpg" });
-      const file = await urltoFile(url, data.getTime() + ".jpg", "image/jpeg");
-      payload.append("media[]", file);
-      payload.append("user_id", "1");
-      payload.append("other", "Ads");
-      payload.append("device_type", key);
-      await imgAPI(payload, key);
-    }
-    (async () => {
-      for (let i = 0; i < sizes.length; i++) {
-        await processSizeAndAppendToPayload(sizes[i].width, sizes[i].height, keys[i]);
-      }
-    })();
-  };
-  const imgAPI = async (payload, key) => {
-    // for (let it of payload) {
-    //   console.log(it, key);
-    // }
-    try {
-      const res = await axios.post(
-        "https://car.develop.somomarketingtech.com/api/upload-media",
-        payload,
-        {
-          withCredentials: true,
-          xsrfHeaderName: "X-XSRF-TOKEN",
-        }
-      );
-      console.log("data", res);
-    } catch (error) {
-      console.log("error in API", error.message);
-    }
-  };
-
   if (showPopUp) {
     Swal.fire({
       title: "Do you want to save the changes?",
@@ -182,8 +205,8 @@ function App({ polotnoStore }) {
       },
     }).then(async (result) => {
       if (result.isConfirmed) {
-        await sendTemplate();
-        await sendImage();
+        const id =  await  sendTemplate();
+        await sendImage(id);
         // const json = await polotnoStore.toJSON();
         // const prev = await polotnoStore.toDataURL({ mimeType: "image/jpg" });
         // dispatch(

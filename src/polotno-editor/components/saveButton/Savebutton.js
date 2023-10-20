@@ -2,9 +2,9 @@ import React from "react";
 import { Button } from "@blueprintjs/core";
 // import { useState } from "react";
 import { useDispatch,useSelector } from "react-redux";
-
+import axios from 'api/axios'
 import { showPopUpHandler,popUpImgHandler } from "../../../store/slices/uiSlice";
-
+import { addId } from "store/slices/templateSlice";
 // <<<<<<< HEAD
 // import { showPopUpHandler } from "store/slices/uiSlice";
 // const payload = new FormData();
@@ -27,7 +27,7 @@ import { showPopUpHandler,popUpImgHandler } from "../../../store/slices/uiSlice"
 const Savebutton = ({ store }) => {
   const dispatch = useDispatch();
   const showPopUp = useSelector((state) => state.ui.showPopUp);
- 
+  const templatesId = useSelector((state) => state.templates.templateId);
 
   // const [payload,setPayload]=useState({})
   
@@ -43,7 +43,7 @@ const Savebutton = ({ store }) => {
     return
    }
 
-   
+  
 
     //  payload.push({
     //   tvUrl:file3
@@ -56,7 +56,18 @@ const Savebutton = ({ store }) => {
     // console.log( payload)
 
   };
-  
+  const deleteHandler = async () => {
+    try {
+      // Send a DELETE request using Axios
+      await axios.delete(`https://car.develop.somomarketingtech.com/api/template/${templatesId}`);
+      // Handle success or perform any additional actions
+      console.log('Delete request successful');
+    } catch (error) {
+      // Handle errors
+      console.error('Error while making the DELETE request:', error);
+    }
+    dispatch(addId(null))
+  };
   return (
     <div className="toolbar_actions_container">
       <Button
@@ -65,6 +76,13 @@ const Savebutton = ({ store }) => {
         }}
       >
         Download Preview
+      </Button>
+      <Button
+        onClick={() => {
+          deleteHandler()
+        }}
+      >
+        Delete Template
       </Button>
       <Button
         onClick={() => {
