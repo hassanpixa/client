@@ -4,9 +4,7 @@ import { Toolbar } from "polotno/toolbar/toolbar";
 import { ZoomButtons } from "polotno/toolbar/zoom-buttons";
 import { SidePanel } from "polotno/side-panel";
 import { Workspace } from "polotno/canvas/workspace";
-import {
-  QrSection,
-} from "polotno-editor/components/customQrTab/CustomQrTab";
+import { QrSection } from "polotno-editor/components/customQrTab/CustomQrTab";
 import { DEFAULT_SECTIONS } from "polotno/side-panel";
 import Savebutton from "./polotno-editor/components/saveButton/Savebutton";
 import { CustomTemplateTab } from "polotno-editor/components/customTemplateTab/CustomTemplateTab";
@@ -16,12 +14,12 @@ import { useDispatch, useSelector } from "react-redux";
 
 // axios and end points
 import axios from "api/axios";
-// import Endpoints from "api/Endpoints";
+import Endpoints from "api/Endpoints";
 
 // import { useEffect } from "react";
 // import { payloadHandler } from "utils/payloadGenerator";
 import { hidePopUpHandler } from "store/slices/uiSlice";
-// import { addTemplates } from "store/slices/templateSlice";
+import { addTemplates } from "store/slices/templateSlice";
 // import { json } from "data";
 // import { useState } from "react";
 // import createStore from "polotno/model/store";
@@ -37,6 +35,7 @@ function App({ polotnoStore }) {
   const showPopUp = useSelector((state) => state.ui.showPopUp);
   const qrBtn = useSelector((state) => state.ui.addQr);
   const popUpImg = useSelector((state) => state.ui.popUpImg);
+  // const [id, SetId] = useState();
   // const loading = useSelector((state) => state.templates.loading);
   const dispatch = useDispatch();
 
@@ -83,22 +82,24 @@ function App({ polotnoStore }) {
         Accept: "application/json",
       };
       const res = await axios.post(
-        "https://car.develop.somomarketingtech.com/api/template",
+        Endpoints.template,
         data,
         {
           headers: headers,
         }
       );
-      console.log("TEMPLATE API RESPONSE --------", res);
-      console.log("TEMPLATE ID --------", res?.data?.result?.template?.id);
-      if(res.status === 200){
+      // console.log("TEMPLATE API RESPONSE --------", res);
+      // console.log("TEMPLATE ID --------", res?.data?.result?.template?.id);
+      if (res.status === 200) {
         showSavingMessage();
-      }else{
-        Swal.fire("Failed", "Your file is Not Saved", "Fail");
+      } else {
+        Swal.fire("Failed", "Your file is Not ", "Fail");
       }
+      // SetId(res?.data?.result?.template?.id);
       return res?.data?.result?.template?.id;
     } catch (error) {
-      console.log("error TEMPLATE API", error.message);
+      // console.log("error TEMPLATE API", error.message);
+      Swal.fire("Error!",error.message, "Fail");
     }
   };
 
@@ -118,13 +119,13 @@ function App({ polotnoStore }) {
       polotnoStore.setSize(width, height, true);
       const url = await polotnoStore.toDataURL({ mimeType: "image/jpg" });
       const file = await urltoFile(url, data.getTime() + ".jpg", "image/jpeg");
-      console.log(file, "----------file");
+      // console.log(file, "----------file");
       payload.append("media[]", file);
       payload.append("user_id", "1");
       payload.append("other", "Ads");
       payload.append("device_type", key);
       payload.append("template_id", id);
-      await imgAPI(payload, key);
+      await imgAPI(payload, key,id);
     }
     (async () => {
       for (let i = 0; i < sizes.length; i++) {
@@ -134,29 +135,39 @@ function App({ polotnoStore }) {
           keys[i]
         );
       }
+     
     })();
   };
-  const imgAPI = async (payload, key) => {
-    // for (let it of payload) {
-    //   console.log(it, key);
-    // }
+  const imgAPI = async (payload, key,id) => {
     const headers = {
       Accept: "application/json",
     };
     try {
       const res = await axios.post(
-        "https://car.develop.somomarketingtech.com/api/upload-media",
+        Endpoints.sendMedia,
         payload,
         {
           headers: headers,
         }
       );
-      console.log(`MEDIA-${key}`, res);
+      // console.log(`MEDIA-${key}`, res);
       if (key === "tv" && res.status === 200) {
         showSavedMessage();
+        if (id) {
+          const json = await JSON.stringify(await polotnoStore.toJSON());
+          const prev = await polotnoStore.toDataURL({ mimeType: "image/jpg" });
+          dispatch(
+            addTemplates({
+              json,
+              prev,
+              id,
+            })
+          );
+        }
       }
     } catch (error) {
-      console.log(`error API MEDIA-${key}`, error.message);
+      // console.log(`error API MEDIA-${key}`, error.message);
+      Swal.fire("Error!",error.message, "Fail");
     }
   };
 
