@@ -6,7 +6,6 @@ import { SidePanel } from "polotno/side-panel";
 import { Workspace } from "polotno/canvas/workspace";
 import {
   QrSection,
-  getQR,
 } from "polotno-editor/components/customQrTab/CustomQrTab";
 import { DEFAULT_SECTIONS } from "polotno/side-panel";
 import Savebutton from "./polotno-editor/components/saveButton/Savebutton";
@@ -17,17 +16,17 @@ import { useDispatch, useSelector } from "react-redux";
 
 // axios and end points
 import axios from "api/axios";
-import Endpoints from "api/Endpoints";
+// import Endpoints from "api/Endpoints";
 
 // import { useEffect } from "react";
-import { payloadHandler } from "utils/payloadGenerator";
+// import { payloadHandler } from "utils/payloadGenerator";
 import { hidePopUpHandler } from "store/slices/uiSlice";
-import { addTemplates } from "store/slices/templateSlice";
-import { json } from "data";
-import { useState } from "react";
+// import { addTemplates } from "store/slices/templateSlice";
+// import { json } from "data";
+// import { useState } from "react";
 // import createStore from "polotno/model/store";
 function App({ polotnoStore }) {
-  const [idTemplates, SetIdTemplates] = useState();
+  // const [idTemplates, SetIdTemplates] = useState();
   const ResizeSection = DEFAULT_SECTIONS.find(
     (section) => section.name === "size"
   );
@@ -38,6 +37,7 @@ function App({ polotnoStore }) {
   const showPopUp = useSelector((state) => state.ui.showPopUp);
   const qrBtn = useSelector((state) => state.ui.addQr);
   const popUpImg = useSelector((state) => state.ui.popUpImg);
+  // const loading = useSelector((state) => state.templates.loading);
   const dispatch = useDispatch();
 
   const urltoFile = async (url, filename, mimeType) => {
@@ -50,6 +50,25 @@ function App({ polotnoStore }) {
       });
     return response;
   };
+
+  function showSavingMessage() {
+    Swal.fire({
+      title: "Saving...",
+      text: "Please wait while we save your data.",
+      icon: "info",
+      allowOutsideClick: false,
+      showConfirmButton: false,
+    });
+  }
+
+  // Function to show SweetAlert with "saved" message
+  function showSavedMessage() {
+    Swal.fire({
+      title: "Saved",
+      text: "Your data has been saved successfully.",
+      icon: "success",
+    });
+  }
 
   // API HIT FOR TEMPLATES JSON
   const sendTemplate = async () => {
@@ -72,13 +91,16 @@ function App({ polotnoStore }) {
       );
       console.log("TEMPLATE API RESPONSE --------", res);
       console.log("TEMPLATE ID --------", res?.data?.result?.template?.id);
-      return res?.data?.result?.template?.id
+      if(res.status === 200){
+        showSavingMessage();
+      }else{
+        Swal.fire("Failed", "Your file is Not Saved", "Fail");
+      }
+      return res?.data?.result?.template?.id;
     } catch (error) {
       console.log("error TEMPLATE API", error.message);
     }
   };
-
-
 
   // API HIT FOR MEDIA
   const sendImage = async (id) => {
@@ -101,7 +123,7 @@ function App({ polotnoStore }) {
       payload.append("user_id", "1");
       payload.append("other", "Ads");
       payload.append("device_type", key);
-      payload.append("template_id",id);
+      payload.append("template_id", id);
       await imgAPI(payload, key);
     }
     (async () => {
@@ -130,63 +152,13 @@ function App({ polotnoStore }) {
         }
       );
       console.log(`MEDIA-${key}`, res);
+      if (key === "tv" && res.status === 200) {
+        showSavedMessage();
+      }
     } catch (error) {
       console.log(`error API MEDIA-${key}`, error.message);
     }
   };
-
-
-
-
-  // const sendImage = async () => {
-  //   const payload = new FormData();
-  //   const data = new Date();
-  //   //mobile
-  //   polotnoStore.setSize(1600, 720);
-  //   const mobileUrl = await polotnoStore.toDataURL({ mimeType: "image/jpg" });
-  //   const file1 = await urltoFile(
-  //     mobileUrl,
-  //     data.getTime() + ".jpg",
-  //     "image/jpeg"
-  //   );
-  //   payload.append("mobile", file1);
-
-  //   // tab
-  //   polotnoStore.setSize(1280, 800);
-
-  //   const tabUrl = await polotnoStore.toDataURL({ mimeType: "image/jpg" });
-  //   const file2 = await urltoFile(
-  //     tabUrl,
-  //     data.getTime() + ".jpg",
-  //     "image/jpeg"
-  //   );
-  //   payload.append("tab", file2);
-
-  //   // tv
-  //   polotnoStore.setSize(1280, 720);
-  //   const tvUrl = await polotnoStore.toDataURL({ mimeType: "image/jpg" });
-  //   const file3 = await urltoFile(tvUrl, data.getTime() + ".jpg", "image/jpeg");
-  //   payload.append("tv", file3);
-
-  //   polotnoStore.setSize(1280, 800, true);
-
-  //   try {
-  //     const res = await axios.post(
-  //       "http://somo-marketing.local/api/upload-media",
-  //       payload,
-  //       {
-  //         withCredentials: true,
-  //         xsrfHeaderName: "X-XSRF-TOKEN",
-  //       }
-  //     );
-  //     console.log("data", res);
-  //   } catch (error) {
-  //     console.log("error in API", error.message);
-  //   }
-  //   for (let it of payload) {
-  //     console.log(it);
-  //   }
-  // };
 
   if (showPopUp) {
     Swal.fire({
@@ -205,38 +177,13 @@ function App({ polotnoStore }) {
       },
     }).then(async (result) => {
       if (result.isConfirmed) {
-        const id =  await  sendTemplate();
+        const id = await sendTemplate();
         await sendImage(id);
-        // const json = await polotnoStore.toJSON();
-        // const prev = await polotnoStore.toDataURL({ mimeType: "image/jpg" });
-        // dispatch(
-        //   addTemplates({
-        //     json,
-        //     prev,
-        //   })
-        // );
-        // payloadHandler(polotnoStore).then((formData) => {
-        //   Use the formData object here
-        //   for (let it of formData) {
-        //     console.log(it)
-        //   }
-        //   Send the formData as needed (e.g., via fetch)
-        // });
-        // .catch((error) => {
-        //   console.error("Error in payloadHandler:", error);
-        // });
       } else if (result.isDenied) {
         dispatch(hidePopUpHandler());
       } else if (result.isDismissed) {
-        // <<<<<<< HEAD
-        //       Swal.fire("added QR");
-        // =======
-        // Swal.fire("Changes are not saved", "", "info");
         polotnoStore.openSidePanel("qr");
-        // >>>>>>> e4a7a46130afbe5e9adc24806c784b95706a7d4e
       }
-
-      // After showing the alert, dispatch an action to hide the popup
       dispatch(hidePopUpHandler());
     });
   }

@@ -1,7 +1,8 @@
 import { createSlice } from "@reduxjs/toolkit";
 const intialStates={
   templates:[],
-  templateId:null
+  templateId:null,
+  loading:false
 }
 export const templateSlice=createSlice({
     name:"templates",
@@ -12,6 +13,9 @@ export const templateSlice=createSlice({
         },
         addId:(state,action)=>{
             state.templateId = action.payload
+        },
+        isLoading:(state,action)=>{
+            state.loading = action.payload
         }
     }
 })
