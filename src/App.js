@@ -89,8 +89,6 @@ function App({ polotnoStore }) {
       // console.log("TEMPLATE ID --------", res?.data?.result?.template?.id);
       if (res.status === 200) {
         showSavingMessage();
-      } else {
-        Swal.fire("Failed", "Your file is Not ", "Fail");
       }
       // SetId(res?.data?.result?.template?.id);
       return res?.data?.result?.template?.id;
@@ -101,7 +99,7 @@ function App({ polotnoStore }) {
   };
 
   // API HIT FOR MEDIA
-  const sendImage = async (id) => {
+  const sendImage = async (id, type) => {
     const sizes = [
       { width: 1600, height: 720 }, // mobile
       { width: 1280, height: 720 }, // tab
@@ -122,7 +120,11 @@ function App({ polotnoStore }) {
       payload.append("other", "Ads");
       payload.append("device_type", key);
       payload.append("template_id", id);
-      await imgAPI(payload, key, id);
+      if (type === "send") {
+        await sendImgAPI(payload, key, id);
+      } else {
+        await updateImgApi(payload, key);
+      }
     }
     (async () => {
       for (let i = 0; i < sizes.length; i++) {
@@ -134,7 +136,7 @@ function App({ polotnoStore }) {
       }
     })();
   };
-  const imgAPI = async (payload, key, id) => {
+  const sendImgAPI = async (payload, key, id) => {
     const headers = {
       Accept: "application/json",
     };
@@ -162,7 +164,14 @@ function App({ polotnoStore }) {
       Swal.fire("Error!", error.message, "Fail");
     }
   };
-  const updateAPI = async (updateData) => {
+
+
+
+
+
+
+
+  const updateJsonAPI = async (updateData) => {
     try {
       const headers = {
         "Content-Type": "application/json",
@@ -186,6 +195,38 @@ function App({ polotnoStore }) {
     }
   };
 
+  const updateImgApi = async (payload, key) => {
+    const headers = {
+      Accept: "application/json",
+    };
+    try {
+      const res = await axios.post(
+        `${Endpoints.sendMedia}`,
+        payload,
+        {
+          headers: headers,
+        }
+      );
+      // console.log(`MEDIA-${key}`, res);
+      if (key === "tv" && res.status === 200) {
+        showSavedMessage();
+        // if (id) {
+        //   const json = await JSON.stringify(await polotnoStore.toJSON());
+        //   const prev = await polotnoStore.toDataURL({ mimeType: "image/jpg" });
+        //   dispatch(
+        //     addTemplates({
+        //       json,
+        //       prev,
+        //       id,
+        //     })
+        //   );
+        // }
+      }
+    } catch (error) {
+      Swal.fire("Error!", error.message, "Fail");
+    }
+  };
+
   const handleUpdateClick = () => {
     Swal.fire({
       title: "Are you sure?",
@@ -198,14 +239,18 @@ function App({ polotnoStore }) {
     }).then(async (result) => {
       if (result.isConfirmed) {
         const json = await JSON.stringify(await polotnoStore.toJSON());
+        const prev = await polotnoStore.toDataURL({ mimeType: "image/jpg" });
         const updateData = {
-          setting: json,
+          settings: json,
         };
-        const status = await updateAPI(updateData);
+        const status = await updateJsonAPI(updateData);
+        const type = 'update'
+        await sendImage(type);
         if (status === 200) {
           const storeData = {
             id: templatesId,
             json: json,
+            prev: prev,
           };
           dispatch(updateTemplates(storeData));
           Swal.fire("Updated!", "Template has been updated.", "success");
@@ -219,7 +264,7 @@ function App({ polotnoStore }) {
   if (showPopUp) {
     Swal.fire({
       title: "Do you want to save the changes?",
-      showDenyButton: `${ templatesId ? true : false}`,
+      showDenyButton: templatesId && true,
       showCancelButton: !qrBtn,
       confirmButtonText: "Save as New",
       denyButtonText: `Update Changes`,
@@ -229,13 +274,15 @@ function App({ polotnoStore }) {
       imageWidth: 400,
       imageHeight: 200,
       imageAlt: "Custom image",
+
       customClass: {
         confirmButton: "save_button_popUP",
       },
     }).then(async (result) => {
       if (result.isConfirmed) {
         const id = await sendTemplate();
-        await sendImage(id);
+        const type = 'send'
+        await sendImage(id,type);
       } else if (result.isDenied) {
         // dispatch(hidePopUpHandler());
         handleUpdateClick();

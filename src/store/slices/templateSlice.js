@@ -28,6 +28,7 @@ export const templateSlice=createSlice({
         updateTemplates: (state, action) => {
             const id = action.payload.id;
             const updatedJson = action.payload.json;
+            const updatedPrev = action.payload.prev;
       
             // Find the template with the matching id
             const templateToUpdate = state.templates.find(temp => temp.id === id);
@@ -35,6 +36,7 @@ export const templateSlice=createSlice({
             if (templateToUpdate) {
               // Update the JSON for the matching template
               templateToUpdate.json = updatedJson;
+              templateToUpdate.prev = updatedPrev
             }
           },
         addId:(state,action)=>{
