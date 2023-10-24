@@ -1,6 +1,7 @@
 import React from "react";
 import { Button } from "@blueprintjs/core";
 // import { useState } from "react";
+import Swal from "sweetalert2";
 import { useDispatch, useSelector } from "react-redux";
 import axios from "api/axios";
 import Endpoints from "api/Endpoints";
@@ -8,7 +9,11 @@ import {
   showPopUpHandler,
   popUpImgHandler,
 } from "../../../store/slices/uiSlice";
-import { addId, updateTemplates } from "store/slices/templateSlice";
+import {
+  // addId,
+  removeTemplates,
+  // updateTemplates,
+} from "store/slices/templateSlice";
 import CustomTooltip from "components/custom-tooltip/CustomTooltip";
 
 const Savebutton = ({ store }) => {
@@ -26,54 +31,113 @@ const Savebutton = ({ store }) => {
       return;
     }
   };
-  const deleteHandler = async () => {
+
+  // const deleteHandler = async () => {
+  //   try {
+  //     // Send a DELETE request using Axios
+  //     await axios.delete(
+  //       `https://car.develop.somomarketingtech.com/api/template/${templatesId}`
+  //     );
+  //     // Handle success or perform any additional actions
+  //     console.log("Delete request successful");
+  //     dispatch(addId(null));
+  //   } catch (error) {
+  //     // Handle errors
+  //     console.error("Error while making the DELETE request:", error);
+  //   }
+  // };
+
+  const deleteAPI = async () => {
     try {
       // Send a DELETE request using Axios
-      await axios.delete(
-        `https://car.develop.somomarketingtech.com/api/template/${templatesId}`
-      );
+      const res = await axios.delete(`${Endpoints.template}/${templatesId}`);
       // Handle success or perform any additional actions
-      console.log("Delete request successful");
-      dispatch(addId(null));
+      // console.log("Delete request", res);
+      return res.status;
     } catch (error) {
       // Handle errors
-      console.error("Error while making the DELETE request:", error);
+      Swal.fire("Error!", error.message, "Fail");
+      // console.error("Error while making the DELETE request:", error.message);
     }
   };
 
-  const updateHandler = async () => {
-    const json = await JSON.stringify(await store.toJSON());
-    const updateData = {
-      setting: json,
-    };
-    try {
-      const headers = {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-      };
-      const response = await axios.post(
-        `${Endpoints.template}/${templatesId}`,
-        updateData,
-        {
-          headers: headers,
+  const handleDeleteClick = () => {
+    Swal.fire({
+      title: "Are you sure?",
+      text: "You won't be able to revert this!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, delete it!",
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        const status = await deleteAPI();
+        if (status === 200) {
+          // console.log(status, "delete status");
+          Swal.fire("Deleted!", "Your file has been deleted.", "success");
+          dispatch(removeTemplates(templatesId));
+          store.clear();
+        } else {
+          Swal.fire("Failed", "Your file is Not Deleted.", "Fail");
         }
-      );
-
-      // Assuming you want to store the response in the 'res' variable
-      const res = response.data;
-      const resJson =  res?.result?.template?.settings
-      console.log(res,'res')
-      console.log("Update successful:", resJson);
-      const storeData = {
-        id: templatesId,
-        json: json,
-      };
-      dispatch(updateTemplates(storeData));
-      // You can now work with the 'res' data as needed
-    } catch (error) {
-      console.error("Error updating data:", error);
-    }
+      }
+    });
   };
+
+  // const updateAPI = async (updateData) => {
+  //   try {
+  //     const headers = {
+  //       "Content-Type": "application/json",
+  //       Accept: "application/json",
+  //     };
+  //     const res = await axios.post(
+  //       `${Endpoints.template}/${templatesId}`,
+  //       updateData,
+  //       {
+  //         headers: headers,
+  //       }
+  //     );
+
+  //     // Assuming you want to store the response in the 'res' variable;
+  //     const newJson = res?.data?.result?.template?.settings;
+  //     console.log(res, "res");
+  //     console.log("Update successful:", newJson);
+  //     return res.status;
+  //   } catch (error) {
+  //     Swal.fire("Error!", error.message, "Fail");
+  //   }
+  // };
+
+  // const handleUpdateClick = () => {
+  //   Swal.fire({
+  //     title: "Are you sure?",
+  //     text: "You won't be able to revert this!",
+  //     icon: "warning",
+  //     showCancelButton: true,
+  //     confirmButtonColor: "#3085d6",
+  //     cancelButtonColor: "#d33",
+  //     confirmButtonText: "Yes, Update it!",
+  //   }).then(async (result) => {
+  //     if (result.isConfirmed) {
+  //       const json = await JSON.stringify(await store.toJSON());
+  //       const updateData = {
+  //         setting: json,
+  //       };
+  //       const status = await updateAPI(updateData);
+  //       if (status === 200) {
+  //         const storeData = {
+  //           id: templatesId,
+  //           json: json,
+  //         };
+  //         dispatch(updateTemplates(storeData));
+  //         Swal.fire("Updated!", "Template has been updated.", "success");
+  //       } else {
+  //         Swal.fire("Failed", "Template is Not Updated.", "Fail");
+  //       }
+  //     }
+  //   });
+  // };
 
   console.log(templatesId);
   return (
@@ -93,10 +157,11 @@ const Savebutton = ({ store }) => {
           </svg>
         </Button>
       </CustomTooltip>
-      <CustomTooltip text="Delete">
+      <CustomTooltip text="Delete Custom Template">
         <Button
+          disabled={templatesId && false}
           onClick={() => {
-            deleteHandler();
+            handleDeleteClick();
           }}
         >
           <svg
@@ -125,8 +190,14 @@ const Savebutton = ({ store }) => {
           </svg>
         </Button>
       </CustomTooltip>
-      <Button onClick={saveHandler}>Apply All</Button>
-      <Button onClick={updateHandler}>Update Template</Button>
+      <Button onClick={saveHandler}>Export As</Button>
+      {/* <Button
+        onClick={() => {
+          handleUpdateClick();
+        }}
+      >
+        Update Template
+      </Button> */}
     </div>
   );
 };

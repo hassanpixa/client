@@ -15,14 +15,17 @@ import { ImagesGrid } from "polotno/side-panel/images-grid";
 import { useDispatch, useSelector } from "react-redux";
 // dummy store slice for img grid
 import { addId } from "store/slices/templateSlice";
-import { addTemplates, removeTemplates } from "store/slices/templateSlice";
+import {
+  addTemplates,
+  //  removeTemplates
+} from "store/slices/templateSlice";
 export const TemplatesPanel = observer(({ store }) => {
   const templates = useSelector((state) => state.templates.templates);
   // const templatesId = useSelector((state) => state.templates.templateId);
 
   const dispatch = useDispatch();
   // const [customTemplates, SetCustomTemplates] = useState([]);
-  const [templateId, SetTemplateId] = useState();
+  // const [templateId, SetTemplateId] = useState();
   const [loading, setLoading] = useState(true);
 
   // const getTemplate = useCallback(async () => {
@@ -74,60 +77,62 @@ export const TemplatesPanel = observer(({ store }) => {
       setLoading(false);
     } catch (error) {
       // console.log("error in API", error.message);
-      Swal.fire("Error!",error.message, "Fail");
+      Swal.fire("Error!", error.message, "Fail");
     }
   };
 
-  const deleteHandler = async () => {
-    try {
-      // Send a DELETE request using Axios
-      const res = await axios.delete(
-        `${Endpoints.template}/${templateId}`
-      );
-      // Handle success or perform any additional actions
-      // console.log("Delete request", res);
-      return res.status;
-    } catch (error) {
-      // Handle errors
-      Swal.fire("Error!",error.message, "Fail");
-      // console.error("Error while making the DELETE request:", error.message);
-    }
-  };
+  // const deleteHandler = async () => {
+  //   try {
+  //     // Send a DELETE request using Axios
+  //     const res = await axios.delete(
+  //       `${Endpoints.template}/${templateId}`
+  //     );
+  //     // Handle success or perform any additional actions
+  //     // console.log("Delete request", res);
+  //     return res.status;
+  //   } catch (error) {
+  //     // Handle errors
+  //     Swal.fire("Error!",error.message, "Fail");
+  //     // console.error("Error while making the DELETE request:", error.message);
+  //   }
+  // };
 
-  const handleDeleteClick = () => {
-    Swal.fire({
-      title: "Are you sure?",
-      text: "You won't be able to revert this!",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#3085d6",
-      cancelButtonColor: "#d33",
-      confirmButtonText: "Yes, delete it!",
-    }).then(async (result) => {
-      if (result.isConfirmed) {
-        const status = await deleteHandler();
-        if (status === 200) {
-          // console.log(status, "delete status");
-          Swal.fire("Deleted!", "Your file has been deleted.", "success");
-          dispatch(removeTemplates(templateId));
-          store.clear();
-          SetTemplateId(null);
-        } else {
-          Swal.fire("Failed", "Your file is Not Deleted.", "Fail");
-        }
-      }
-    });
-  };
+  // const handleDeleteClick = () => {
+  //   Swal.fire({
+  //     title: "Are you sure?",
+  //     text: "You won't be able to revert this!",
+  //     icon: "warning",
+  //     showCancelButton: true,
+  //     confirmButtonColor: "#3085d6",
+  //     cancelButtonColor: "#d33",
+  //     confirmButtonText: "Yes, delete it!",
+  //   }).then(async (result) => {
+  //     if (result.isConfirmed) {
+  //       const status = await deleteHandler();
+  //       if (status === 200) {
+  //         // console.log(status, "delete status");
+  //         Swal.fire("Deleted!", "Your file has been deleted.", "success");
+  //         dispatch(removeTemplates(templateId));
+  //         store.clear();
+  //         SetTemplateId(null);
+  //       } else {
+  //         Swal.fire("Failed", "Your file is Not Deleted.", "Fail");
+  //       }
+  //     }
+  //   });
+  // };
 
   useEffect(() => {
     getTemplate();
+    return () => {
+      dispatch(addId(null));
+    };
     // eslint-disable-next-line
   }, []);
   return (
     <>
-      
-      <div style={{ height: "100%" }} className="custom_img_grid_main_div">
-      {templateId && (
+      <div style={{ height: "100%" }}>
+        {/* {templateId && (
         <button
         className="delete_button"
           onClick={() => {
@@ -136,7 +141,7 @@ export const TemplatesPanel = observer(({ store }) => {
         >
           Delete
         </button>
-      )}
+      )} */}
         <ImagesGrid
           shadowEnabled={false}
           images={templates?.map((data) => data.prev).flat()}
@@ -151,8 +156,8 @@ export const TemplatesPanel = observer(({ store }) => {
             // console.log("on select", obj.json);
             store.waitLoading();
             await store.loadJSON(await JSON.parse(obj?.json));
-            SetTemplateId(obj?.id);
-            dispatch(addId(obj?.id))
+            // SetTemplateId(obj?.id);
+            dispatch(addId(obj?.id));
           }}
           rowsNumber={1}
         />

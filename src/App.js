@@ -19,7 +19,7 @@ import Endpoints from "api/Endpoints";
 // import { useEffect } from "react";
 // import { payloadHandler } from "utils/payloadGenerator";
 import { hidePopUpHandler } from "store/slices/uiSlice";
-import { addTemplates } from "store/slices/templateSlice";
+import { addTemplates, updateTemplates } from "store/slices/templateSlice";
 // import { json } from "data";
 // import { useState } from "react";
 // import createStore from "polotno/model/store";
@@ -35,6 +35,7 @@ function App({ polotnoStore }) {
   const showPopUp = useSelector((state) => state.ui.showPopUp);
   const qrBtn = useSelector((state) => state.ui.addQr);
   const popUpImg = useSelector((state) => state.ui.popUpImg);
+  const templatesId = useSelector((state) => state.templates.templateId);
   // const [id, SetId] = useState();
   // const loading = useSelector((state) => state.templates.loading);
   const dispatch = useDispatch();
@@ -81,13 +82,9 @@ function App({ polotnoStore }) {
         "Content-Type": "application/json",
         Accept: "application/json",
       };
-      const res = await axios.post(
-        Endpoints.template,
-        data,
-        {
-          headers: headers,
-        }
-      );
+      const res = await axios.post(Endpoints.template, data, {
+        headers: headers,
+      });
       // console.log("TEMPLATE API RESPONSE --------", res);
       // console.log("TEMPLATE ID --------", res?.data?.result?.template?.id);
       if (res.status === 200) {
@@ -99,7 +96,7 @@ function App({ polotnoStore }) {
       return res?.data?.result?.template?.id;
     } catch (error) {
       // console.log("error TEMPLATE API", error.message);
-      Swal.fire("Error!",error.message, "Fail");
+      Swal.fire("Error!", error.message, "Fail");
     }
   };
 
@@ -125,7 +122,7 @@ function App({ polotnoStore }) {
       payload.append("other", "Ads");
       payload.append("device_type", key);
       payload.append("template_id", id);
-      await imgAPI(payload, key,id);
+      await imgAPI(payload, key, id);
     }
     (async () => {
       for (let i = 0; i < sizes.length; i++) {
@@ -135,21 +132,16 @@ function App({ polotnoStore }) {
           keys[i]
         );
       }
-     
     })();
   };
-  const imgAPI = async (payload, key,id) => {
+  const imgAPI = async (payload, key, id) => {
     const headers = {
       Accept: "application/json",
     };
     try {
-      const res = await axios.post(
-        Endpoints.sendMedia,
-        payload,
-        {
-          headers: headers,
-        }
-      );
+      const res = await axios.post(Endpoints.sendMedia, payload, {
+        headers: headers,
+      });
       // console.log(`MEDIA-${key}`, res);
       if (key === "tv" && res.status === 200) {
         showSavedMessage();
@@ -167,18 +159,72 @@ function App({ polotnoStore }) {
       }
     } catch (error) {
       // console.log(`error API MEDIA-${key}`, error.message);
-      Swal.fire("Error!",error.message, "Fail");
+      Swal.fire("Error!", error.message, "Fail");
     }
+  };
+  const updateAPI = async (updateData) => {
+    try {
+      const headers = {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      };
+      const res = await axios.post(
+        `${Endpoints.template}/${templatesId}`,
+        updateData,
+        {
+          headers: headers,
+        }
+      );
+
+      // Assuming you want to store the response in the 'res' variable;
+      const newJson = res?.data?.result?.template?.settings;
+      console.log(res, "res");
+      console.log("Update successful:", newJson);
+      return res.status;
+    } catch (error) {
+      Swal.fire("Error!", error.message, "Fail");
+    }
+  };
+
+  const handleUpdateClick = () => {
+    Swal.fire({
+      title: "Are you sure?",
+      text: "You won't be able to revert this!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, Update it!",
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        const json = await JSON.stringify(await polotnoStore.toJSON());
+        const updateData = {
+          setting: json,
+        };
+        const status = await updateAPI(updateData);
+        if (status === 200) {
+          const storeData = {
+            id: templatesId,
+            json: json,
+          };
+          dispatch(updateTemplates(storeData));
+          Swal.fire("Updated!", "Template has been updated.", "success");
+        } else {
+          Swal.fire("Failed", "Template is Not Updated.", "Fail");
+        }
+      }
+    });
   };
 
   if (showPopUp) {
     Swal.fire({
       title: "Do you want to save the changes?",
-      showDenyButton: true,
+      showDenyButton: `${ templatesId ? true : false}`,
       showCancelButton: !qrBtn,
-      confirmButtonText: "Save",
-      denyButtonText: `Cancel`,
+      confirmButtonText: "Save as New",
+      denyButtonText: `Update Changes`,
       cancelButtonText: `Add Qr`,
+      showCloseButton: true,
       imageUrl: popUpImg,
       imageWidth: 400,
       imageHeight: 200,
@@ -191,7 +237,8 @@ function App({ polotnoStore }) {
         const id = await sendTemplate();
         await sendImage(id);
       } else if (result.isDenied) {
-        dispatch(hidePopUpHandler());
+        // dispatch(hidePopUpHandler());
+        handleUpdateClick();
       } else if (result.isDismissed) {
         polotnoStore.openSidePanel("qr");
       }
