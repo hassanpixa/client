@@ -137,3 +137,24 @@ customClass: {
 .custom-tooltip-container:hover .custom-tooltip {
   opacity: 1;
 }
+/* =================================== */
+
+.button_styles{
+  border: none;
+}
+
+.custom_img_grid_main_div{
+  position: relative;
+  padding-top: 10%;
+}
+.delete_button{
+  position: absolute;
+  z-index: 1;
+  top: 10px;
+  left: 50%;
+  transform: translate(-50%,-50%);
+}
+
+.bp4-navbar-group.bp4-align-right{
+border: 1px solid red;
+}

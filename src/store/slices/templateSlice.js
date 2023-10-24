@@ -25,10 +25,22 @@ export const templateSlice=createSlice({
             state.templates=state.templates.filter(tem=>tem.id!==id)
             // state.templates.push(action.payload)
         },
+        updateTemplates: (state, action) => {
+            const id = action.payload.id;
+            const updatedJson = action.payload.json;
+      
+            // Find the template with the matching id
+            const templateToUpdate = state.templates.find(temp => temp.id === id);
+      
+            if (templateToUpdate) {
+              // Update the JSON for the matching template
+              templateToUpdate.json = updatedJson;
+            }
+          },
         addId:(state,action)=>{
             state.templateId = action.payload
         }
     }
 })
-export const {addTemplates,addId,removeTemplates}=templateSlice.actions;
+export const {addTemplates,addId,removeTemplates,updateTemplates}=templateSlice.actions;
 export default templateSlice.reducer;

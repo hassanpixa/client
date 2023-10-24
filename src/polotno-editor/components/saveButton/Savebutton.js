@@ -2,19 +2,19 @@ import React from "react";
 import { Button } from "@blueprintjs/core";
 // import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-// import axios from "api/axios";
+import axios from "api/axios";
+import Endpoints from "api/Endpoints";
 import {
   showPopUpHandler,
   popUpImgHandler,
 } from "../../../store/slices/uiSlice";
-// import { addId } from "store/slices/templateSlice";
+import { addId, updateTemplates } from "store/slices/templateSlice";
 import CustomTooltip from "components/custom-tooltip/CustomTooltip";
 
 const Savebutton = ({ store }) => {
   const dispatch = useDispatch();
   const showPopUp = useSelector((state) => state.ui.showPopUp);
-  // const templatesId = useSelector((state) => state.templates.templateId);
-
+  const templatesId = useSelector((state) => state.templates.templateId);
 
   const saveHandler = async () => {
     if (!showPopUp) {
@@ -26,22 +26,58 @@ const Savebutton = ({ store }) => {
       return;
     }
   };
-  // const deleteHandler = async () => {
-  //   try {
-  //     // Send a DELETE request using Axios
-  //     await axios.delete(
-  //       `https://car.develop.somomarketingtech.com/api/template/${templatesId}`
-  //     );
-  //     // Handle success or perform any additional actions
-  //     console.log("Delete request successful");
-  //   } catch (error) {
-  //     // Handle errors
-  //     console.error("Error while making the DELETE request:", error);
-  //   }
-  //   dispatch(addId(null));
-  // };
+  const deleteHandler = async () => {
+    try {
+      // Send a DELETE request using Axios
+      await axios.delete(
+        `https://car.develop.somomarketingtech.com/api/template/${templatesId}`
+      );
+      // Handle success or perform any additional actions
+      console.log("Delete request successful");
+      dispatch(addId(null));
+    } catch (error) {
+      // Handle errors
+      console.error("Error while making the DELETE request:", error);
+    }
+  };
+
+  const updateHandler = async () => {
+    const json = await JSON.stringify(await store.toJSON());
+    const updateData = {
+      setting: json,
+    };
+    try {
+      const headers = {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      };
+      const response = await axios.post(
+        `${Endpoints.template}/${templatesId}`,
+        updateData,
+        {
+          headers: headers,
+        }
+      );
+
+      // Assuming you want to store the response in the 'res' variable
+      const res = response.data;
+      const resJson =  res?.result?.template?.settings
+      console.log(res,'res')
+      console.log("Update successful:", resJson);
+      const storeData = {
+        id: templatesId,
+        json: json,
+      };
+      dispatch(updateTemplates(storeData));
+      // You can now work with the 'res' data as needed
+    } catch (error) {
+      console.error("Error updating data:", error);
+    }
+  };
+
+  console.log(templatesId);
   return (
-    <div className="toolbar_actions_container">
+    <div className="toolbar_actions_container bp4-overflow-list">
       <CustomTooltip text="Download">
         <Button
           onClick={() => {
@@ -57,7 +93,7 @@ const Savebutton = ({ store }) => {
           </svg>
         </Button>
       </CustomTooltip>
-      {/* <CustomTooltip text="Delete">
+      <CustomTooltip text="Delete">
         <Button
           onClick={() => {
             deleteHandler();
@@ -71,7 +107,7 @@ const Savebutton = ({ store }) => {
             <path d="M135.2 17.7L128 32H32C14.3 32 0 46.3 0 64S14.3 96 32 96H416c17.7 0 32-14.3 32-32s-14.3-32-32-32H320l-7.2-14.3C307.4 6.8 296.3 0 284.2 0H163.8c-12.1 0-23.2 6.8-28.6 17.7zM416 128H32L53.2 467c1.6 25.3 22.6 45 47.9 45H346.9c25.3 0 46.3-19.7 47.9-45L416 128z" />
           </svg>
         </Button>
-      </CustomTooltip> */}
+      </CustomTooltip>
       <CustomTooltip text="Clear Page">
         <Button
           onClick={() => {
@@ -90,6 +126,7 @@ const Savebutton = ({ store }) => {
         </Button>
       </CustomTooltip>
       <Button onClick={saveHandler}>Apply All</Button>
+      <Button onClick={updateHandler}>Update Template</Button>
     </div>
   );
 };

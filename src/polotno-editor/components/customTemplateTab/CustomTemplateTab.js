@@ -14,7 +14,7 @@ import { ImagesGrid } from "polotno/side-panel/images-grid";
 // import { json } from "../../../data";
 import { useDispatch, useSelector } from "react-redux";
 // dummy store slice for img grid
-// import { addId } from "store/slices/templateSlice";
+import { addId } from "store/slices/templateSlice";
 import { addTemplates, removeTemplates } from "store/slices/templateSlice";
 export const TemplatesPanel = observer(({ store }) => {
   const templates = useSelector((state) => state.templates.templates);
@@ -125,8 +125,11 @@ export const TemplatesPanel = observer(({ store }) => {
   }, []);
   return (
     <>
+      
+      <div style={{ height: "100%" }} className="custom_img_grid_main_div">
       {templateId && (
         <button
+        className="delete_button"
           onClick={() => {
             handleDeleteClick();
           }}
@@ -134,7 +137,6 @@ export const TemplatesPanel = observer(({ store }) => {
           Delete
         </button>
       )}
-      <div style={{ height: "100%" }}>
         <ImagesGrid
           shadowEnabled={false}
           images={templates?.map((data) => data.prev).flat()}
@@ -150,6 +152,7 @@ export const TemplatesPanel = observer(({ store }) => {
             store.waitLoading();
             await store.loadJSON(await JSON.parse(obj?.json));
             SetTemplateId(obj?.id);
+            dispatch(addId(obj?.id))
           }}
           rowsNumber={1}
         />
