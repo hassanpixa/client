@@ -14,4 +14,19 @@ console.log(userId,'user id')
 const instance = axios.create({
   baseURL: baseUrl,
 });
+
+
+instance.interceptors.request.use(
+  (config) => {
+    if (userId) {
+      config.headers.Authorization = `Bearer ${userId}`;
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
+
+
 export default instance;
