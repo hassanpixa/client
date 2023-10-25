@@ -5,4 +5,5 @@ export default {
 
     // Templates picture API endpoints
     sendMedia:'upload-media',
+    updateMedia:'update-media'
 }
