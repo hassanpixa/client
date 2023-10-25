@@ -20,6 +20,8 @@ import Endpoints from "api/Endpoints";
 // import { payloadHandler } from "utils/payloadGenerator";
 import { hidePopUpHandler } from "store/slices/uiSlice";
 import { addTemplates, updateTemplates } from "store/slices/templateSlice";
+import { showLoadingAlert } from "utils/showLoadingAlert";
+import { showLoadedAlert } from "utils/showLoadedAlert";
 // import { json } from "data";
 // import { useState } from "react";
 // import createStore from "polotno/model/store";
@@ -40,39 +42,30 @@ function App({ polotnoStore }) {
   // const loading = useSelector((state) => state.templates.loading);
   const dispatch = useDispatch();
 
-  const urltoFile = async (url, filename, mimeType) => {
-    const response = await fetch(url)
-      .then((res) => {
-        return res.blob();
-      })
-      .then((blob) => {
-        return new File([blob], filename, { type: blob.type });
-      });
-    return response;
-  };
+ 
 
-  function showSavingMessage() {
-    Swal.fire({
-      title: "Saving...",
-      text: "Please wait while we save your data.",
-      icon: "info",
-      allowOutsideClick: false,
-      showConfirmButton: false,
-    });
-  }
+  // function showSavingMessage() {
+  //   Swal.fire({
+  //     title: "Saving...",
+  //     text: "Please wait while we save your data.",
+  //     icon: "info",
+  //     allowOutsideClick: false,
+  //     showConfirmButton: false,
+  //   });
+  // }
 
-  // Function to show SweetAlert with "saved" message
-  function showSavedMessage() {
-    Swal.fire({
-      title: "Saved",
-      text: "Your data has been saved successfully.",
-      icon: "success",
-    });
-  }
+  // function showSavedMessage() {
+  //   Swal.fire({
+  //     title: "Saved",
+  //     text: "Your data has been saved successfully.",
+  //     icon: "success",
+  //   });
+  // }
 
   // API HIT FOR TEMPLATES JSON
-  const sendTemplate = async () => {
+  const sendTemplateAPI = async () => {
     const templateJson = JSON.stringify(await polotnoStore.toJSON());
+    console.log(templateJson,'Json of Template ')
     const data = {
       user_id: "1",
       settings: templateJson,
@@ -88,7 +81,9 @@ function App({ polotnoStore }) {
       // console.log("TEMPLATE API RESPONSE --------", res);
       // console.log("TEMPLATE ID --------", res?.data?.result?.template?.id);
       if (res.status === 200) {
-        showSavingMessage();
+        // showSavingMessage();
+        const message = "Saving";
+        showLoadingAlert(message);
       }
       // SetId(res?.data?.result?.template?.id);
       return res?.data?.result?.template?.id;
@@ -99,7 +94,17 @@ function App({ polotnoStore }) {
   };
 
   // API HIT FOR MEDIA
-  const sendImage = async (id, type) => {
+  const urltoFile = async (url, filename, mimeType) => {
+    const response = await fetch(url)
+      .then((res) => {
+        return res.blob();
+      })
+      .then((blob) => {
+        return new File([blob], filename, { type: blob.type });
+      });
+    return response;
+  };
+  const mediaGenrator = async (id, type) => {
     const sizes = [
       { width: 1600, height: 720 }, // mobile
       { width: 1280, height: 720 }, // tab
@@ -119,10 +124,14 @@ function App({ polotnoStore }) {
       payload.append("user_id", "1");
       payload.append("other", "Ads");
       payload.append("device_type", key);
-      payload.append("template_id", id);
+      
       if (type === "send") {
+        payload.append("template_id", id);
         await sendImgAPI(payload, key, id);
+        console.log("Post Media APi Hit");
       } else {
+        payload.append("template_id", templatesId);
+        console.log("Update Media APi Hit");
         await updateImgApi(payload, key);
       }
     }
@@ -137,6 +146,10 @@ function App({ polotnoStore }) {
     })();
   };
   const sendImgAPI = async (payload, key, id) => {
+
+    for(let it of payload){
+      console.log(it,'send media api')
+    }
     const headers = {
       Accept: "application/json",
     };
@@ -146,7 +159,9 @@ function App({ polotnoStore }) {
       });
       // console.log(`MEDIA-${key}`, res);
       if (key === "tv" && res.status === 200) {
-        showSavedMessage();
+        // showSavedMessage();
+        const message = "Saved";
+        showLoadedAlert(message);
         if (id) {
           const json = await JSON.stringify(await polotnoStore.toJSON());
           const prev = await polotnoStore.toDataURL({ mimeType: "image/jpg" });
@@ -158,6 +173,7 @@ function App({ polotnoStore }) {
             })
           );
         }
+        return res.status
       }
     } catch (error) {
       // console.log(`error API MEDIA-${key}`, error.message);
@@ -169,9 +185,10 @@ function App({ polotnoStore }) {
 
 
 
-
-
+  // Update API 
   const updateJsonAPI = async (updateData) => {
+    const message = "Updating";
+    showLoadingAlert(message);
     try {
       const headers = {
         "Content-Type": "application/json",
@@ -188,7 +205,7 @@ function App({ polotnoStore }) {
       // Assuming you want to store the response in the 'res' variable;
       const newJson = res?.data?.result?.template?.settings;
       console.log(res, "res");
-      console.log("Update successful:", newJson);
+      console.log("Updated successful:", newJson);
       return res.status;
     } catch (error) {
       Swal.fire("Error!", error.message, "Fail");
@@ -196,20 +213,21 @@ function App({ polotnoStore }) {
   };
 
   const updateImgApi = async (payload, key) => {
+    for(let it of payload){
+      console.log(it,'update media api')
+    }
     const headers = {
       Accept: "application/json",
     };
     try {
-      const res = await axios.post(
-        `${Endpoints.sendMedia}`,
-        payload,
-        {
-          headers: headers,
-        }
-      );
+      const res = await axios.post(`${Endpoints.sendMedia}`, payload, {
+        headers: headers,
+      });
       // console.log(`MEDIA-${key}`, res);
       if (key === "tv" && res.status === 200) {
-        showSavedMessage();
+        // showSavedMessage();
+        const message = "Updated";
+        showLoadedAlert(message);
         // if (id) {
         //   const json = await JSON.stringify(await polotnoStore.toJSON());
         //   const prev = await polotnoStore.toDataURL({ mimeType: "image/jpg" });
@@ -222,6 +240,7 @@ function App({ polotnoStore }) {
         //   );
         // }
       }
+      console.log(res,'res of upload media')
     } catch (error) {
       Swal.fire("Error!", error.message, "Fail");
     }
@@ -244,8 +263,8 @@ function App({ polotnoStore }) {
           settings: json,
         };
         const status = await updateJsonAPI(updateData);
-        const type = 'update'
-        await sendImage(type);
+        const type = "update";
+        await mediaGenrator(type);
         if (status === 200) {
           const storeData = {
             id: templatesId,
@@ -264,30 +283,40 @@ function App({ polotnoStore }) {
   if (showPopUp) {
     Swal.fire({
       title: "Do you want to save the changes?",
+      html: `${!qrBtn ? `<button id="btn1" type="button" class="btn btn-custom popup_qr_button">Add Qr</button>` : ''}`,
       showDenyButton: templatesId && true,
-      showCancelButton: !qrBtn,
+      showCancelButton: true,
       confirmButtonText: "Save as New",
       denyButtonText: `Update Changes`,
-      cancelButtonText: `Add Qr`,
+      cancelButtonText: `Cancel`,
       showCloseButton: true,
       imageUrl: popUpImg,
       imageWidth: 400,
       imageHeight: 200,
       imageAlt: "Custom image",
+      didOpen: () => {
+        const btn1 = document?.getElementById("btn1");
+        btn1?.addEventListener("click", () => {
+          console.log("Button 1 Clicked");
+          Swal.close();
+          polotnoStore.openSidePanel("qr");
+          // Call your custom function for Button 1 here
+        });
+      },
 
       customClass: {
         confirmButton: "save_button_popUP",
       },
     }).then(async (result) => {
       if (result.isConfirmed) {
-        const id = await sendTemplate();
-        const type = 'send'
-        await sendImage(id,type);
+        const id = await sendTemplateAPI();
+        const type = "send";
+        await mediaGenrator(id, type);
       } else if (result.isDenied) {
         // dispatch(hidePopUpHandler());
         handleUpdateClick();
       } else if (result.isDismissed) {
-        polotnoStore.openSidePanel("qr");
+        dispatch(hidePopUpHandler());
       }
       dispatch(hidePopUpHandler());
     });
