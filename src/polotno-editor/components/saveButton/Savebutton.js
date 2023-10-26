@@ -23,13 +23,15 @@ const Savebutton = ({ store }) => {
   const templatesId = useSelector((state) => state.templates.templateId);
 
   const saveHandler = async () => {
-    if (!showPopUp) {
+    console.log(store.pages.length,'store')
+
+    if (!showPopUp && store.pages.length > 0) {
       const imgUrl = await store.toDataURL();
 
       dispatch(popUpImgHandler(imgUrl));
       dispatch(showPopUpHandler());
     } else {
-      return;
+      Swal.fire("Error!", 'No Page Added ', "error");
     }
   };
 
@@ -80,7 +82,7 @@ const Savebutton = ({ store }) => {
           dispatch(removeTemplates(templatesId));
           store.clear();
         } else {
-          Swal.fire("Failed", "Your file is Not Deleted.", "Fail");
+          Swal.fire("Failed", "Your file is Not Deleted.", "error");
         }
       }
     });

@@ -69,7 +69,7 @@ export const TemplatesPanel = observer(({ store }) => {
         dispatch(
           addTemplates({
             json: fetchedData[i]?.settings,
-            prev: fetchedData[i]?.medias[0]?.media_url,
+            prev: fetchedData[i]?.medias[1]?.media_url,
             id: fetchedData[i]?.id,
           })
         );
@@ -126,9 +126,9 @@ export const TemplatesPanel = observer(({ store }) => {
 
   useEffect(() => {
     getTemplate();
-    return () => {
-      dispatch(addId(null));
-    };
+    // return () => {
+    //   dispatch(addId(null));
+    // };
     // eslint-disable-next-line
   }, []);
   return (

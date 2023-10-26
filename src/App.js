@@ -19,9 +19,14 @@ import Endpoints from "api/Endpoints";
 // import { useEffect } from "react";
 // import { payloadHandler } from "utils/payloadGenerator";
 import { hidePopUpHandler } from "store/slices/uiSlice";
-import { addTemplates, updateTemplates } from "store/slices/templateSlice";
+import {
+  addId,
+  addTemplates,
+  updateTemplates,
+} from "store/slices/templateSlice";
 import { showLoadingAlert } from "utils/showLoadingAlert";
 import { showLoadedAlert } from "utils/showLoadedAlert";
+import { useEffect } from "react";
 // import { json } from "data";
 // import { useState } from "react";
 // import createStore from "polotno/model/store";
@@ -56,16 +61,16 @@ function App({ polotnoStore }) {
   const mediaGenrator = async (id, type) => {
     const sizes = [
       { width: 1600, height: 720 }, // mobile
-      { width: 1280, height: 720 }, // tab
       { width: 1280, height: 800 }, // tv
+      { width: 1280, height: 720 }, // tab
     ];
-    const keys = ["mobile", "tab", "tv"];
+    const keys = ["mobile", "tv","tab" ];
     async function processSizeAndAppendToPayload(width, height, key) {
       // console.log(width, height, key, "DATA");
       const payload = new FormData();
       const data = new Date();
       await polotnoStore.waitLoading();
-      polotnoStore.setSize(width, height, true);
+      polotnoStore.setSize(width, height,true);
       const url = await polotnoStore.toDataURL({ mimeType: "image/jpg" });
       const file = await urltoFile(url, data.getTime() + ".jpg", "image/jpeg");
       // console.log(file, "----------file");
@@ -77,6 +82,7 @@ function App({ polotnoStore }) {
       if (type === "send") {
         payload.append("template_id", id);
         await sendImgAPI(payload, key, id);
+        polotnoStore.history.undo()
         console.log("Post Media APi Hit");
       } else {
         payload.append("template_id", templatesId);
@@ -124,7 +130,7 @@ function App({ polotnoStore }) {
       return res?.data?.result?.template?.id;
     } catch (error) {
       // console.log("error TEMPLATE API", error.message);
-      Swal.fire("Error!", error.message, "Fail");
+      Swal.fire("Error!", error.message, "error");
     }
   };
   // Media Post
@@ -142,7 +148,7 @@ function App({ polotnoStore }) {
       // console.log(`MEDIA-${key}`, res);
       if (key === "tv" && res.status === 200) {
         // showSavedMessage();
-     
+
         if (id) {
           const json = await JSON.stringify(await polotnoStore.toJSON());
           const prev = await polotnoStore.toDataURL({ mimeType: "image/jpg" });
@@ -152,7 +158,6 @@ function App({ polotnoStore }) {
               prev,
               id,
             })
-            
           );
           const message = "Saved";
           showLoadedAlert(message);
@@ -161,7 +166,7 @@ function App({ polotnoStore }) {
       }
     } catch (error) {
       // console.log(`error API MEDIA-${key}`, error.message);
-      Swal.fire("Error!", error.message, "Fail");
+      Swal.fire("Error!", error.message, "error");
     }
   };
 
@@ -190,7 +195,7 @@ function App({ polotnoStore }) {
       console.log("Updated successful:", newJson);
       return res.status;
     } catch (error) {
-      Swal.fire("Error!", error.message, "Fail");
+      Swal.fire("Error!", error.message, "error");
     }
   };
   // IMAGE UPDATE
@@ -208,8 +213,7 @@ function App({ polotnoStore }) {
       // console.log(`MEDIA-${key}`, res);
       if (key === "tv" && res.status === 200) {
         // showSavedMessage();
-        if(templatesId){
-
+        if (templatesId) {
           const json = await JSON.stringify(await polotnoStore.toJSON());
           const prev = await polotnoStore.toDataURL({ mimeType: "image/jpg" });
           const storeData = {
@@ -221,11 +225,10 @@ function App({ polotnoStore }) {
           const message = "Updated";
           showLoadedAlert(message);
         }
-        
       }
       console.log(res, "res of upload media");
     } catch (error) {
-      Swal.fire("Error!", error.message, "Fail");
+      Swal.fire("Error!", error.message, "error");
     }
   };
 
@@ -310,7 +313,12 @@ function App({ polotnoStore }) {
       dispatch(hidePopUpHandler());
     });
   }
-
+  polotnoStore.on('change', () => {
+    const sidePanel = polotnoStore.openedSidePanel;
+    if (sidePanel === "templates") {
+      dispatch(addId(null));
+    }
+  });
   return (
     <>
       <PolotnoContainer
@@ -324,6 +332,7 @@ function App({ polotnoStore }) {
           <Toolbar
             store={polotnoStore}
             components={{ ActionControls: Savebutton }}
+            hideImageRemoveBackground
           />
           <Workspace store={polotnoStore} />
           <ZoomButtons store={polotnoStore} />
