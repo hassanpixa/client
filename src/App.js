@@ -142,8 +142,7 @@ function App({ polotnoStore }) {
       // console.log(`MEDIA-${key}`, res);
       if (key === "tv" && res.status === 200) {
         // showSavedMessage();
-        const message = "Saved";
-        showLoadedAlert(message);
+     
         if (id) {
           const json = await JSON.stringify(await polotnoStore.toJSON());
           const prev = await polotnoStore.toDataURL({ mimeType: "image/jpg" });
@@ -153,7 +152,10 @@ function App({ polotnoStore }) {
               prev,
               id,
             })
+            
           );
+          const message = "Saved";
+          showLoadedAlert(message);
         }
         return res.status;
       }
@@ -206,19 +208,20 @@ function App({ polotnoStore }) {
       // console.log(`MEDIA-${key}`, res);
       if (key === "tv" && res.status === 200) {
         // showSavedMessage();
-        const message = "Updated";
-        showLoadedAlert(message);
-        // if (id) {
-        //   const json = await JSON.stringify(await polotnoStore.toJSON());
-        //   const prev = await polotnoStore.toDataURL({ mimeType: "image/jpg" });
-        //   dispatch(
-        //     addTemplates({
-        //       json,
-        //       prev,
-        //       id,
-        //     })
-        //   );
-        // }
+        if(templatesId){
+
+          const json = await JSON.stringify(await polotnoStore.toJSON());
+          const prev = await polotnoStore.toDataURL({ mimeType: "image/jpg" });
+          const storeData = {
+            id: templatesId,
+            json: json,
+            prev: prev,
+          };
+          dispatch(updateTemplates(storeData));
+          const message = "Updated";
+          showLoadedAlert(message);
+        }
+        
       }
       console.log(res, "res of upload media");
     } catch (error) {
@@ -238,24 +241,24 @@ function App({ polotnoStore }) {
     }).then(async (result) => {
       if (result.isConfirmed) {
         const json = await JSON.stringify(await polotnoStore.toJSON());
-        const prev = await polotnoStore.toDataURL({ mimeType: "image/jpg" });
+        // const prev = await polotnoStore.toDataURL({ mimeType: "image/jpg" });
         const updateData = {
           settings: json,
         };
         const status = await updateJsonAPI(updateData);
         const type = "update";
-        // await mediaGenrator(type);
-        if (status === 200) {
-          const storeData = {
-            id: templatesId,
-            json: json,
-            prev: prev,
-          };
-          dispatch(updateTemplates(storeData));
-          Swal.fire("Updated!", "Template has been updated.", "success");
-        } else {
-          Swal.fire("Failed", "Template is Not Updated.", "Fail");
-        }
+        await mediaGenrator(type);
+        // if (status === 200) {
+        //   const storeData = {
+        //     id: templatesId,
+        //     json: json,
+        //     prev: prev,
+        //   };
+        //   dispatch(updateTemplates(storeData));
+        //   Swal.fire("Updated!", "Template has been updated.", "success");
+        // } else {
+        //   Swal.fire("Failed", "Template is Not Updated.", "Fail");
+        // }
       }
     });
   };

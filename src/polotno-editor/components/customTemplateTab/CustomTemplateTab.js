@@ -74,10 +74,12 @@ export const TemplatesPanel = observer(({ store }) => {
           })
         );
       }
-      setLoading(false);
+     
     } catch (error) {
       // console.log("error in API", error.message);
       Swal.fire("Error!", error.message, "Fail");
+    }finally{
+      setLoading(false);
     }
   };
 
