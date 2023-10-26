@@ -217,6 +217,9 @@ customClass: {
 .toolbar_buttons:hover {
   background: #5f6b7c1a !important;
 }
+.floppy-svg{
+  fill: var(--secondary-color);
+}
 /* .toolbar_buttons:hover.toolbar_buttons span svg{
   fill: var(--secondary-color) !important;
 } */

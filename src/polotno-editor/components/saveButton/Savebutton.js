@@ -23,7 +23,7 @@ const Savebutton = ({ store }) => {
   const templatesId = useSelector((state) => state.templates.templateId);
 
   const saveHandler = async () => {
-    console.log(store.pages.length,'store')
+    console.log(store.pages.length, "store");
 
     if (!showPopUp && store.pages.length > 0) {
       const imgUrl = await store.toDataURL();
@@ -31,7 +31,7 @@ const Savebutton = ({ store }) => {
       dispatch(popUpImgHandler(imgUrl));
       dispatch(showPopUpHandler());
     } else {
-      Swal.fire("Error!", 'No Page Added ', "error");
+      Swal.fire("Error!", "No Page Added ", "error");
     }
   };
 
@@ -230,12 +230,25 @@ const Savebutton = ({ store }) => {
             }}
           ></Button>
         </Tooltip2>
-        <Tooltip2 content="Export" position="bottom">
+        <Tooltip2 content="Save" position="bottom">
           <Button
             onClick={saveHandler}
-            icon="export"
+            // icon="floppy-disk"
             className="toolbar_buttons"
-          ></Button>
+            style={{ fill: "green" }}
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              fill="currentColor"
+              class="bi bi-floppy-fill floppy-svg"
+              viewBox="0 0 16 16"
+            >
+              <path d="M0 1.5A1.5 1.5 0 0 1 1.5 0H3v5.5A1.5 1.5 0 0 0 4.5 7h7A1.5 1.5 0 0 0 13 5.5V0h.086a1.5 1.5 0 0 1 1.06.44l1.415 1.414A1.5 1.5 0 0 1 16 2.914V14.5a1.5 1.5 0 0 1-1.5 1.5H14v-5.5A1.5 1.5 0 0 0 12.5 9h-9A1.5 1.5 0 0 0 2 10.5V16h-.5A1.5 1.5 0 0 1 0 14.5v-13Z" />
+              <path d="M3 16h10v-5.5a.5.5 0 0 0-.5-.5h-9a.5.5 0 0 0-.5.5V16Zm9-16H4v5.5a.5.5 0 0 0 .5.5h7a.5.5 0 0 0 .5-.5V0ZM9 1h2v4H9V1Z" />
+            </svg>
+          </Button>
         </Tooltip2>
       </div>
     </>

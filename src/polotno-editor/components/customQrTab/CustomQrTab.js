@@ -85,7 +85,7 @@ export const QrSection = {
 
         <div className="qr_button_div">
           <Button onClick={generateQRCode} className="primary_btn qr_button">
-            Add QR code
+            Add Qr code
           </Button>
           <Button
             onClick={() => {

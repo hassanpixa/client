@@ -61,16 +61,16 @@ function App({ polotnoStore }) {
   const mediaGenrator = async (id, type) => {
     const sizes = [
       { width: 1600, height: 720 }, // mobile
-      { width: 1280, height: 800 }, // tv
-      { width: 1280, height: 720 }, // tab
+      { width: 1280, height: 720 }, // tv
+      { width: 1280, height: 800 }, // tab
     ];
-    const keys = ["mobile", "tv","tab" ];
+    const keys = ["Mobile", "TV", "Tab"];
     async function processSizeAndAppendToPayload(width, height, key) {
       // console.log(width, height, key, "DATA");
       const payload = new FormData();
       const data = new Date();
       await polotnoStore.waitLoading();
-      polotnoStore.setSize(width, height,true);
+      polotnoStore.setSize(width, height, true);
       const url = await polotnoStore.toDataURL({ mimeType: "image/jpg" });
       const file = await urltoFile(url, data.getTime() + ".jpg", "image/jpeg");
       // console.log(file, "----------file");
@@ -82,11 +82,12 @@ function App({ polotnoStore }) {
       if (type === "send") {
         payload.append("template_id", id);
         await sendImgAPI(payload, key, id);
-        polotnoStore.history.undo()
+        polotnoStore.history.undo();
         console.log("Post Media APi Hit");
       } else {
         payload.append("template_id", templatesId);
         await updateImgApi(payload, key);
+        polotnoStore.history.undo();
         console.log("Update Media APi Hit");
       }
     }
@@ -123,6 +124,7 @@ function App({ polotnoStore }) {
       // console.log("TEMPLATE ID --------", res?.data?.result?.template?.id);
       if (res.status === 200) {
         // showSavingMessage();
+        await polotnoStore.history.clear();
         const message = "Saving";
         showLoadingAlert(message);
       }
@@ -130,7 +132,8 @@ function App({ polotnoStore }) {
       return res?.data?.result?.template?.id;
     } catch (error) {
       // console.log("error TEMPLATE API", error.message);
-      Swal.fire("Error!", error.message, "error");
+      // console.log(error.response.data,'template error on post')
+      Swal.fire("Error!", 'Something went wrong! Please try closing the editor and come back again', "error");
     }
   };
   // Media Post
@@ -146,7 +149,7 @@ function App({ polotnoStore }) {
         headers: headers,
       });
       // console.log(`MEDIA-${key}`, res);
-      if (key === "tv" && res.status === 200) {
+      if (key === "Tab" && res.status === 200) {
         // showSavedMessage();
 
         if (id) {
@@ -174,8 +177,6 @@ function App({ polotnoStore }) {
 
   // JSON UPDATE
   const updateJsonAPI = async (updateData) => {
-    const message = "Updating";
-    showLoadingAlert(message);
     try {
       const headers = {
         "Content-Type": "application/json",
@@ -188,8 +189,11 @@ function App({ polotnoStore }) {
           headers: headers,
         }
       );
-
-      // Assuming you want to store the response in the 'res' variable;
+      if (res.status === 200) {
+        await polotnoStore.history.clear();
+        const message = "Updating";
+        showLoadingAlert(message);
+      }
       const newJson = res?.data?.result?.template?.settings;
       console.log(res, "res");
       console.log("Updated successful:", newJson);
@@ -211,7 +215,7 @@ function App({ polotnoStore }) {
         headers: headers,
       });
       // console.log(`MEDIA-${key}`, res);
-      if (key === "tv" && res.status === 200) {
+      if (key === "Tab" && res.status === 200) {
         // showSavedMessage();
         if (templatesId) {
           const json = await JSON.stringify(await polotnoStore.toJSON());
@@ -249,8 +253,10 @@ function App({ polotnoStore }) {
           settings: json,
         };
         const status = await updateJsonAPI(updateData);
-        const type = "update";
-        await mediaGenrator(type);
+        if (status === 200) {
+          const type = "update";
+          await mediaGenrator(type);
+        }
         // if (status === 200) {
         //   const storeData = {
         //     id: templatesId,
@@ -302,8 +308,10 @@ function App({ polotnoStore }) {
     }).then(async (result) => {
       if (result.isConfirmed) {
         const id = await sendTemplateAPI();
-        const type = "send";
-        await mediaGenrator(id, type);
+        if (id) {
+          const type = "send";
+          await mediaGenrator(id, type);
+        }
       } else if (result.isDenied) {
         // dispatch(hidePopUpHandler());
         handleUpdateClick();
@@ -313,7 +321,7 @@ function App({ polotnoStore }) {
       dispatch(hidePopUpHandler());
     });
   }
-  polotnoStore.on('change', () => {
+  polotnoStore.on("change", () => {
     const sidePanel = polotnoStore.openedSidePanel;
     if (sidePanel === "templates") {
       dispatch(addId(null));
