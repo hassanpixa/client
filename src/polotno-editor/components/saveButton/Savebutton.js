@@ -23,7 +23,7 @@ const Savebutton = ({ store }) => {
   const templatesId = useSelector((state) => state.templates.templateId);
 
   const saveHandler = async () => {
-    console.log(store.pages.length, "store");
+    // console.log(store.pages.length, "store");
 
     if (!showPopUp && store.pages.length > 0) {
       const imgUrl = await store.toDataURL();
@@ -59,7 +59,7 @@ const Savebutton = ({ store }) => {
       return res.status;
     } catch (error) {
       // Handle errors
-      Swal.fire("Error!", error.message, "Fail");
+      Swal.fire("Error!", "Something went wrong! Please try closing the editor and come back again", "error");
       // console.error("Error while making the DELETE request:", error.message);
     }
   };
@@ -182,7 +182,7 @@ const Savebutton = ({ store }) => {
     </Menu>
   );
 
-  console.log(templatesId);
+  // console.log(templatesId);
   return (
     <>
       {/* <Popover2 content={exampleMenu} fill={true} placement="bottom">
@@ -242,7 +242,7 @@ const Savebutton = ({ store }) => {
               width="16"
               height="16"
               fill="currentColor"
-              class="bi bi-floppy-fill floppy-svg"
+              className="bi bi-floppy-fill floppy-svg"
               viewBox="0 0 16 16"
             >
               <path d="M0 1.5A1.5 1.5 0 0 1 1.5 0H3v5.5A1.5 1.5 0 0 0 4.5 7h7A1.5 1.5 0 0 0 13 5.5V0h.086a1.5 1.5 0 0 1 1.06.44l1.415 1.414A1.5 1.5 0 0 1 16 2.914V14.5a1.5 1.5 0 0 1-1.5 1.5H14v-5.5A1.5 1.5 0 0 0 12.5 9h-9A1.5 1.5 0 0 0 2 10.5V16h-.5A1.5 1.5 0 0 1 0 14.5v-13Z" />

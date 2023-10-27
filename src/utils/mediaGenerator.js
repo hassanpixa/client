@@ -31,7 +31,7 @@ export const mediaGenerator = (polotnoStore,id) => {
     payload.append("device_type", key);
     payload.append("template_id", id);
     
-    console.log(payload,'media payload in funtion')
+    // console.log(payload,'media payload in funtion')
     return payload
   }
   (async () => {

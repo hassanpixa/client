@@ -56,7 +56,7 @@ export const TemplatesPanel = observer(({ store }) => {
     try {
       const res = await axios.get(Endpoints.template);
       const fetchedData = res?.data?.result?.templates?.data;
-      console.log(fetchedData, "FETCHED DATA");
+      // console.log(fetchedData, "FETCHED DATA");
       for (let i = 0; i < fetchedData.length; i++) {
         // SetCustomTemplates((prev) => [
         //   ...prev,
@@ -69,7 +69,7 @@ export const TemplatesPanel = observer(({ store }) => {
         dispatch(
           addTemplates({
             json: fetchedData[i]?.settings,
-            prev: fetchedData[i]?.medias[1]?.media_url,
+            prev: fetchedData[i]?.medias[0]?.media_url,
             id: fetchedData[i]?.id,
           })
         );
@@ -77,7 +77,7 @@ export const TemplatesPanel = observer(({ store }) => {
      
     } catch (error) {
       // console.log("error in API", error.message);
-      Swal.fire("Error!", error.message, "Fail");
+      Swal.fire("Error!", "Something went wrong! Please try closing the editor and come back again", "error");
     }finally{
       setLoading(false);
     }

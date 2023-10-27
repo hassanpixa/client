@@ -26,7 +26,7 @@ import {
 } from "store/slices/templateSlice";
 import { showLoadingAlert } from "utils/showLoadingAlert";
 import { showLoadedAlert } from "utils/showLoadedAlert";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 // import { json } from "data";
 // import { useState } from "react";
 // import createStore from "polotno/model/store";
@@ -43,9 +43,19 @@ function App({ polotnoStore }) {
   // const qrBtn = useSelector((state) => state.ui.addQr);
   const popUpImg = useSelector((state) => state.ui.popUpImg);
   const templatesId = useSelector((state) => state.templates.templateId);
+  // const [mediaId, setMediaId] = useState([]);
   // const [id, SetId] = useState();
   // const loading = useSelector((state) => state.templates.loading);
+  let mediaIds=[]
   const dispatch = useDispatch();
+
+  const emitEventToParent = () => {
+    const message = { type: 'sendMediaIdsToParent', data: JSON.stringify(mediaIds)};
+    window.parent.postMessage(message, '*'); // '*' can be replaced with the parent window's origin for added security
+    // console.log('event function  hit ',mediaIds)
+}
+
+
 
   // MEDIA GENERATOR START
   const urltoFile = async (url, filename, mimeType) => {
@@ -83,12 +93,12 @@ function App({ polotnoStore }) {
         payload.append("template_id", id);
         await sendImgAPI(payload, key, id);
         polotnoStore.history.undo();
-        console.log("Post Media APi Hit");
+        // console.log("Post Media APi Hit");
       } else {
         payload.append("template_id", templatesId);
         await updateImgApi(payload, key);
         polotnoStore.history.undo();
-        console.log("Update Media APi Hit");
+        // console.log("Update Media APi Hit");
       }
     }
     (async () => {
@@ -107,7 +117,7 @@ function App({ polotnoStore }) {
   // Json Post
   const sendTemplateAPI = async () => {
     const templateJson = JSON.stringify(await polotnoStore.toJSON());
-    console.log(templateJson, "Json of Template ");
+    // console.log(templateJson, "Json of Template ");
     const data = {
       // user_id: "1",
       settings: templateJson,
@@ -133,13 +143,17 @@ function App({ polotnoStore }) {
     } catch (error) {
       // console.log("error TEMPLATE API", error.message);
       // console.log(error.response.data,'template error on post')
-      Swal.fire("Error!", 'Something went wrong! Please try closing the editor and come back again', "error");
+      Swal.fire(
+        "Error!",
+        "Something went wrong! Please try closing the editor and come back again",
+        "error"
+      );
     }
   };
   // Media Post
   const sendImgAPI = async (payload, key, id) => {
     for (let it of payload) {
-      console.log(it, "send media api");
+      // console.log(it, "send media api");
     }
     const headers = {
       Accept: "application/json",
@@ -149,6 +163,8 @@ function App({ polotnoStore }) {
         headers: headers,
       });
       // console.log(`MEDIA-${key}`, res);
+      mediaIds.push(res?.data?.result?.media[0]?.id);
+      // console.log( mediaIds ,'======================')
       if (key === "Tab" && res.status === 200) {
         // showSavedMessage();
 
@@ -164,12 +180,13 @@ function App({ polotnoStore }) {
           );
           const message = "Saved";
           showLoadedAlert(message);
+          emitEventToParent()
         }
         return res.status;
       }
     } catch (error) {
       // console.log(`error API MEDIA-${key}`, error.message);
-      Swal.fire("Error!", error.message, "error");
+      Swal.fire("Error!", "Something went wrong! Please try closing the editor and come back again", "error");
     }
   };
 
@@ -195,18 +212,18 @@ function App({ polotnoStore }) {
         showLoadingAlert(message);
       }
       const newJson = res?.data?.result?.template?.settings;
-      console.log(res, "res");
-      console.log("Updated successful:", newJson);
+      // console.log(res, "res");
+      // console.log("Updated successful:", newJson);
       return res.status;
     } catch (error) {
-      Swal.fire("Error!", error.message, "error");
+      Swal.fire("Error!", "Something went wrong! Please try closing the editor and come back again", "error");
     }
   };
   // IMAGE UPDATE
   const updateImgApi = async (payload, key) => {
-    for (let it of payload) {
-      console.log(it, "update media api");
-    }
+    // for (let it of payload) {
+    //   console.log(it, "update media api");
+    // }
     const headers = {
       Accept: "application/json",
     };
@@ -215,8 +232,10 @@ function App({ polotnoStore }) {
         headers: headers,
       });
       // console.log(`MEDIA-${key}`, res);
+      // console.log(res, "res of upload media");
+      // console.log(res?.data?.result?.media?.id, "id of upload media");
+      mediaIds.push(res?.data?.result?.media?.id);
       if (key === "Tab" && res.status === 200) {
-        // showSavedMessage();
         if (templatesId) {
           const json = await JSON.stringify(await polotnoStore.toJSON());
           const prev = await polotnoStore.toDataURL({ mimeType: "image/jpg" });
@@ -228,11 +247,12 @@ function App({ polotnoStore }) {
           dispatch(updateTemplates(storeData));
           const message = "Updated";
           showLoadedAlert(message);
+          emitEventToParent()
         }
       }
-      console.log(res, "res of upload media");
+      
     } catch (error) {
-      Swal.fire("Error!", error.message, "error");
+      Swal.fire("Error!", "Something went wrong! Please try closing the editor and come back again", "error");
     }
   };
 
@@ -272,6 +292,11 @@ function App({ polotnoStore }) {
     });
   };
 
+
+
+
+
+
   // Export Button for Save , Update , Add QR
   const element = polotnoStore?.getElementById("q");
   if (showPopUp) {
@@ -295,7 +320,7 @@ function App({ polotnoStore }) {
       didOpen: () => {
         const btn1 = document?.getElementById("btn1");
         btn1?.addEventListener("click", () => {
-          console.log("Button 1 Clicked");
+          // console.log("Button 1 Clicked");
           Swal.close();
           polotnoStore.openSidePanel("qr");
           // Call your custom function for Button 1 here
@@ -311,6 +336,7 @@ function App({ polotnoStore }) {
         if (id) {
           const type = "send";
           await mediaGenrator(id, type);
+          
         }
       } else if (result.isDenied) {
         // dispatch(hidePopUpHandler());
