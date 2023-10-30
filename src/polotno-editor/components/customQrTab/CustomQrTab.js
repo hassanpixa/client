@@ -30,7 +30,7 @@ export async function getQR(text) {
 export const QrSection = {
   name: "qr",
   Tab: (props) => (
-    <SectionTab name="Qr" {...props}>
+    <SectionTab name="QR Code" {...props}>
       <ImQrcode />
     </SectionTab>
   ),
@@ -66,7 +66,13 @@ export const QrSection = {
     };
     return (
       <div>
-        <p>Create new QR code(s):</p>
+        <h3 className="qr_tab_title">QR Code Generator:</h3>
+        <p className="qr_tab_paragraph">
+          <span className="text-red">Note:</span> Place the link to the page. Every time anyone scans the QR code
+          on your ad, they will be able to go on to this link. If you do not
+          have a specific landing page, “select custom template” option and
+          build a landing page
+        </p>
         {inputValues.map((value, index) => (
           <div key={index}>
             <InputGroup
@@ -76,7 +82,7 @@ export const QrSection = {
                 newInputValues[index] = e.target.value;
                 setInputValues(newInputValues);
               }}
-              placeholder={`Type qr code content ${index + 1}`}
+              placeholder={`Type QR Code Content ${index + 1}`}
               value={value}
               style={{ width: "100%" }}
             />
@@ -85,7 +91,7 @@ export const QrSection = {
 
         <div className="qr_button_div">
           <Button onClick={generateQRCode} className="primary_btn qr_button">
-            Add Qr code
+            Add QR Code
           </Button>
           <Button
             onClick={() => {
@@ -95,7 +101,10 @@ export const QrSection = {
           >
             Add input field
           </Button>
-          <Button onClick={removeInputField} className="secondary_btn qr_button">
+          <Button
+            onClick={removeInputField}
+            className="secondary_btn qr_button"
+          >
             Remove input field
           </Button>
           <Button
@@ -108,7 +117,7 @@ export const QrSection = {
             }}
             className="clear_btn qr_button"
           >
-            Clear All
+            Clear All Inputs
           </Button>
         </div>
         {/* <div>
