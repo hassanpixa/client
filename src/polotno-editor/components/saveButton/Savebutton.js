@@ -16,8 +16,15 @@ import {
   // updateTemplates,
 } from "store/slices/templateSlice";
 import CustomTooltip from "components/custom-tooltip/CustomTooltip";
+import { urltoFile } from "utils/urltoFile";
 
 const Savebutton = ({ store }) => {
+  const queryString = window.location.search;
+
+  const urlParams = new URLSearchParams(queryString);
+  const deviceType = urlParams.get("deviceType");
+  const templateParamId = urlParams.get("templateId");
+
   const dispatch = useDispatch();
   const showPopUp = useSelector((state) => state.ui.showPopUp);
   const templatesId = useSelector((state) => state.templates.templateId);
@@ -35,20 +42,45 @@ const Savebutton = ({ store }) => {
     }
   };
 
-  // const deleteHandler = async () => {
-  //   try {
-  //     // Send a DELETE request using Axios
-  //     await axios.delete(
-  //       `https://car.develop.somomarketingtech.com/api/template/${templatesId}`
-  //     );
-  //     // Handle success or perform any additional actions
-  //     console.log("Delete request successful");
-  //     dispatch(addId(null));
-  //   } catch (error) {
-  //     // Handle errors
-  //     console.error("Error while making the DELETE request:", error);
-  //   }
-  // };
+
+  const updateSingleImgApi = async (payload, deviceType) => {
+    // for (let it of payload) {
+    //   console.log(it, "update media api");
+    // }
+    const headers = {
+      Accept: "application/json",
+    };
+    try {
+      const res = await axios.post(`${Endpoints.updateMedia}`, payload, {
+        headers: headers,
+      });
+      console.log(res,'Res for single media update')
+    } catch (error) {
+      Swal.fire(
+        "Error!",
+        "Something went wrong! Please try closing the editor and come back again",
+        "error"
+      );
+    }
+  };
+
+
+  const singleSave = async () => {
+    const payload = new FormData();
+    const data = new Date();
+    const url = await store.toDataURL({ mimeType: "image/jpg" });
+    const file = await urltoFile(url, data.getTime() + ".jpg", "image/jpeg");
+    payload.append("media[]", file);
+    payload.append("user_id", "1");
+    payload.append("other", "Ads");
+    payload.append("device_type", deviceType);
+    payload.append("template_id", templateParamId);
+
+    await updateSingleImgApi(payload,deviceType)
+    console.log("SINGLE SAVE BUTTON IS CLICKED");
+  };
+
+  
 
   const deleteAPI = async () => {
     try {
@@ -59,7 +91,11 @@ const Savebutton = ({ store }) => {
       return res.status;
     } catch (error) {
       // Handle errors
-      Swal.fire("Error!", "Something went wrong! Please try closing the editor and come back again", "error");
+      Swal.fire(
+        "Error!",
+        "Something went wrong! Please try closing the editor and come back again",
+        "error"
+      );
       // console.error("Error while making the DELETE request:", error.message);
     }
   };
@@ -232,7 +268,7 @@ const Savebutton = ({ store }) => {
         </Tooltip2>
         <Tooltip2 content="Save" position="bottom">
           <Button
-            onClick={saveHandler}
+            onClick={deviceType ? singleSave : saveHandler}
             // icon="floppy-disk"
             className="toolbar_buttons"
             style={{ fill: "green" }}

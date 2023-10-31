@@ -16,7 +16,7 @@ export const CustomResizePanel = observer(({ store }) => {
           key={i}
           style={{ width: "100%", marginBottom: "20px" }}
           onClick={() => {
-            store.setSize(width, height);
+            store.setSize(width, height,true);
           }}
         >
           {width}x{height}

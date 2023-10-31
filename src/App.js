@@ -27,11 +27,24 @@ import {
 import { showLoadingAlert } from "utils/showLoadingAlert";
 import { showLoadedAlert } from "utils/showLoadedAlert";
 import { useEffect, useState } from "react";
+import { urltoFile } from "utils/urltoFile";
 // import { json } from "data";
 // import { useState } from "react";
 // import createStore from "polotno/model/store";
 function App({ polotnoStore }) {
   // const [idTemplates, SetIdTemplates] = useState();
+  const getFactor = (origalVal, targetedVal) => {
+    const originalWidth = origalVal; // Original width in pixels
+    const targetWidth = targetedVal; // Target width in pixels
+    if (origalVal === targetedVal) {
+      return 1;
+    }
+    const scaleFactor = targetWidth / originalWidth;
+    // console.log(scaleFactor,  "scaleFactor")
+    // const newMeasurement = originalWidth * scaleFactor;
+    return scaleFactor;
+  };
+
   const ResizeSection = DEFAULT_SECTIONS.find(
     (section) => section.name === "size"
   );
@@ -46,28 +59,30 @@ function App({ polotnoStore }) {
   // const [mediaId, setMediaId] = useState([]);
   // const [id, SetId] = useState();
   // const loading = useSelector((state) => state.templates.loading);
-  let mediaIds=[]
+  let mediaIds = [];
   const dispatch = useDispatch();
 
   const emitEventToParent = () => {
-    const message = { type: 'sendMediaIdsToParent', data: JSON.stringify(mediaIds)};
-    window.parent.postMessage(message, '*'); // '*' can be replaced with the parent window's origin for added security
+    const message = {
+      type: "sendMediaIdsToParent",
+      data: JSON.stringify(mediaIds),
+    };
+    window.parent.postMessage(message, "*"); // '*' can be replaced with the parent window's origin for added security
     // console.log('event function  hit ',mediaIds)
-}
-
-
+  };
 
   // MEDIA GENERATOR START
-  const urltoFile = async (url, filename, mimeType) => {
-    const response = await fetch(url)
-      .then((res) => {
-        return res.blob();
-      })
-      .then((blob) => {
-        return new File([blob], filename, { type: blob.type });
-      });
-    return response;
-  };
+  // const urltoFile = async (url, filename, mimeType) => {
+  //   const response = await fetch(url)
+  //     .then((res) => {
+  //       return res.blob();
+  //     })
+  //     .then((blob) => {
+  //       return new File([blob], filename, { type: mimeType });
+  //     });
+  //   return response;
+  // };
+
   const mediaGenrator = async (id, type) => {
     const sizes = [
       { width: 1600, height: 720 }, // mobile
@@ -80,25 +95,67 @@ function App({ polotnoStore }) {
       const payload = new FormData();
       const data = new Date();
       await polotnoStore.waitLoading();
-      polotnoStore.setSize(width, height, true);
-      const url = await polotnoStore.toDataURL({ mimeType: "image/jpg" });
-      const file = await urltoFile(url, data.getTime() + ".jpg", "image/jpeg");
-      // console.log(file, "----------file");
-      payload.append("media[]", file);
-      payload.append("user_id", "1");
-      payload.append("other", "Ads");
-      payload.append("device_type", key);
+      polotnoStore.activePage.set({ bleed: 20 }); // set bleed in pixels
+      polotnoStore.toggleBleed(true);
+      // polotnoStore.toggleBleed(false);
+      const originalWidth = await polotnoStore.width;
+      const originalHeight = await polotnoStore.height;
+      const widthFactor = getFactor(originalWidth, width);
+      const heightFactor = getFactor(originalHeight, height);
+      await polotnoStore.setSize(width, height);
+      if (widthFactor) {
+        // console.log(
+        //   widthFactor,
+        //   "Width factor ",
+        //   heightFactor,
+        //   "height factor"
+        // );
+        await polotnoStore.activePage?.children.forEach((element) => {
+          // console.log(
+          //   element.width,
+          //   "original ELEMENT width",
+          //   element.x,
+          //   "x-axis",
+          //   element.y,
+          //   "y-axis"
+          // );
+          element.set({
+            width: element.width * widthFactor,
+            height: element.height * heightFactor,
+            x: element.x * widthFactor,
+          });
+          // console.log(
+          //   element.width,
+          //   "new ELEMENT width",
+          //   element.x,
+          //   "x-axis",
+          //   element.y,
+          //   "y-axis"
+          // );
+        });
+        const url = await polotnoStore.toDataURL({ mimeType: "image/jpg" });
+        const file = await urltoFile(
+          url,
+          data.getTime() + ".jpg",
+          "image/jpeg"
+        );
+        // console.log(file, "----------file");
+        payload.append("media[]", file);
+        payload.append("user_id", "1");
+        payload.append("other", "Ads");
+        payload.append("device_type", key);
 
-      if (type === "send") {
-        payload.append("template_id", id);
-        await sendImgAPI(payload, key, id);
-        polotnoStore.history.undo();
-        // console.log("Post Media APi Hit");
-      } else {
-        payload.append("template_id", templatesId);
-        await updateImgApi(payload, key);
-        polotnoStore.history.undo();
-        // console.log("Update Media APi Hit");
+        if (type === "send") {
+          payload.append("template_id", id);
+          await sendImgAPI(payload, key, id);
+          polotnoStore.history.undo();
+          // console.log("Post Media APi Hit");
+        } else {
+          payload.append("template_id", templatesId);
+          await updateImgApi(payload, key);
+          polotnoStore.history.undo();
+          // console.log("Update Media APi Hit");
+        }
       }
     }
     (async () => {
@@ -112,6 +169,18 @@ function App({ polotnoStore }) {
     })();
   };
   // MEDIA GENERATOR END
+  // for (let i; i < this.store.selectedElements.length; i++){
+  //   console.log(i);
+  //   console.log("string");
+  // }
+  // const ids = this.store.pages;
+  // this.store.pages.forEach(element => {
+  //   //   console.log(element.id);
+  //   element.children.forEach(child => {
+  //     console.log(child.id);
+  //     this.store.deleteElements([child.id]);
+  //   });
+  // });
 
   // ====================== POST API ============================
   // Json Post
@@ -134,7 +203,7 @@ function App({ polotnoStore }) {
       // console.log("TEMPLATE ID --------", res?.data?.result?.template?.id);
       if (res.status === 200) {
         // showSavingMessage();
-        await polotnoStore.history.clear();
+        // await polotnoStore.history.clear();
         const message = "Saving";
         showLoadingAlert(message);
       }
@@ -153,7 +222,7 @@ function App({ polotnoStore }) {
   // Media Post
   const sendImgAPI = async (payload, key, id) => {
     for (let it of payload) {
-      // console.log(it, "send media api");
+      console.log(it, "send media api");
     }
     const headers = {
       Accept: "application/json",
@@ -180,13 +249,17 @@ function App({ polotnoStore }) {
           );
           const message = "Saved";
           showLoadedAlert(message);
-          emitEventToParent()
+          emitEventToParent();
         }
         return res.status;
       }
     } catch (error) {
       // console.log(`error API MEDIA-${key}`, error.message);
-      Swal.fire("Error!", "Something went wrong! Please try closing the editor and come back again", "error");
+      Swal.fire(
+        "Error!",
+        "Something went wrong! Please try closing the editor and come back again",
+        "error"
+      );
     }
   };
 
@@ -207,7 +280,7 @@ function App({ polotnoStore }) {
         }
       );
       if (res.status === 200) {
-        await polotnoStore.history.clear();
+        // await polotnoStore.history.clear();
         const message = "Updating";
         showLoadingAlert(message);
       }
@@ -216,7 +289,11 @@ function App({ polotnoStore }) {
       // console.log("Updated successful:", newJson);
       return res.status;
     } catch (error) {
-      Swal.fire("Error!", "Something went wrong! Please try closing the editor and come back again", "error");
+      Swal.fire(
+        "Error!",
+        "Something went wrong! Please try closing the editor and come back again",
+        "error"
+      );
     }
   };
   // IMAGE UPDATE
@@ -247,12 +324,15 @@ function App({ polotnoStore }) {
           dispatch(updateTemplates(storeData));
           const message = "Updated";
           showLoadedAlert(message);
-          emitEventToParent()
+          emitEventToParent();
         }
       }
-      
     } catch (error) {
-      Swal.fire("Error!", "Something went wrong! Please try closing the editor and come back again", "error");
+      Swal.fire(
+        "Error!",
+        "Something went wrong! Please try closing the editor and come back again",
+        "error"
+      );
     }
   };
 
@@ -291,11 +371,6 @@ function App({ polotnoStore }) {
       }
     });
   };
-
-
-
-
-
 
   // Export Button for Save , Update , Add QR
   const element = polotnoStore?.getElementById("q");
@@ -336,7 +411,6 @@ function App({ polotnoStore }) {
         if (id) {
           const type = "send";
           await mediaGenrator(id, type);
-          
         }
       } else if (result.isDenied) {
         // dispatch(hidePopUpHandler());
