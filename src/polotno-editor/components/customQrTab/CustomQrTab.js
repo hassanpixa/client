@@ -36,7 +36,7 @@ export const QrSection = {
   ),
   // we need observer to update component automatically on any store changes
   Panel: observer(({ store }) => {
-    const [inputValues, setInputValues] = React.useState([""]);
+    const [inputValues, setInputValues] = React.useState(["", ""]);
 
     const concatenatedValue = inputValues.join("\n"); // Concatenate input values with line breaks
 
@@ -68,10 +68,10 @@ export const QrSection = {
       <div>
         <h3 className="qr_tab_title">QR Code Generator:</h3>
         <p className="qr_tab_paragraph">
-          <span className="text-red">Note:</span> Place the link to the page. Every time anyone scans the QR code
-          on your ad, they will be able to go on to this link. If you do not
-          have a specific landing page, “select custom template” option and
-          build a landing page
+          <span className="text-red">Note:</span> Place the link to the page.
+          Every time anyone scans the QR code on your ad, they will be able to
+          go on to this link. If you do not have a specific landing page,
+          “select custom template” option and build a landing page
         </p>
         {inputValues.map((value, index) => (
           <div key={index}>
@@ -82,7 +82,9 @@ export const QrSection = {
                 newInputValues[index] = e.target.value;
                 setInputValues(newInputValues);
               }}
-              placeholder={`Type QR Code Content ${index + 1}`}
+              placeholder={`Type ${
+                index === 0 ? "Coupon Code" : `QR Code Content ${index}`
+              }`}
               value={value}
               style={{ width: "100%" }}
             />
@@ -107,13 +109,21 @@ export const QrSection = {
           >
             Remove input field
           </Button>
-          <Button
+          {/* <Button
             onClick={() => {
               setInputValues(
                 inputValues.filter(
                   (_, index) => index === inputValues.length - 1
                 )
               );
+            }}
+            className="clear_btn qr_button"
+          >
+            Clear All Inputs
+          </Button> */}
+          <Button
+            onClick={() => {
+              setInputValues(["", ""]);
             }}
             className="clear_btn qr_button"
           >

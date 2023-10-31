@@ -51,6 +51,7 @@ function App({ polotnoStore }) {
   // overwrite its panel component
   ResizeSection.Panel = CustomResizePanel;
   const sections = [QrSection, CustomTemplateTab, ...DEFAULT_SECTIONS];
+  const filteredSections = sections.filter((section) => section.name !== "templates");
   // redux states
   const showPopUp = useSelector((state) => state.ui.showPopUp);
   // const qrBtn = useSelector((state) => state.ui.addQr);
@@ -102,7 +103,9 @@ function App({ polotnoStore }) {
       const originalHeight = await polotnoStore.height;
       const widthFactor = getFactor(originalWidth, width);
       const heightFactor = getFactor(originalHeight, height);
+      console.log('BEFORE',polotnoStore.width,'widht',polotnoStore.height,'Height')
       await polotnoStore.setSize(width, height);
+      console.log('After',polotnoStore.width,'widht',polotnoStore.height,'Height')
       if (widthFactor) {
         // console.log(
         //   widthFactor,
@@ -119,11 +122,42 @@ function App({ polotnoStore }) {
           //   element.y,
           //   "y-axis"
           // );
-          element.set({
-            width: element.width * widthFactor,
-            height: element.height * heightFactor,
-            x: element.x * widthFactor,
-          });
+          // console.log(element, "ELEMENT PROPS");
+          const name = element.name;
+          const type = element.type;
+          // console.log(type,'TYPE',name,'NAME')
+          if (type === "text") {
+            // console.log(element.fontSize, "BFORE TEXT ELEMENT", widthFactor, heightFactor);
+            element.set({
+              fontSize: element.fontSize * widthFactor * heightFactor ,
+              width: element.width * widthFactor,
+              height: element.height * heightFactor,
+              x: element.x * widthFactor,
+              y: element.y * heightFactor,
+              keepRatio: true,
+              resizeable: true,
+            });
+            // console.log(element.fontSize, "after TEXT ELEMENT");
+          } else if (name === "qr") {
+            element.set({
+              width: element.width * heightFactor,
+              height: element.height * heightFactor,
+              x: element.x * widthFactor,
+              y: element.y * heightFactor,
+              keepRatio: true,
+              resizeable: true,
+            });
+          } else {
+            element.set({
+              width: element.width * widthFactor,
+              height: element.height * heightFactor,
+              x: element.x * widthFactor,
+              y: element.y * heightFactor,
+              keepRatio: true,
+              resizeable: true,
+            });
+          }
+
           // console.log(
           //   element.width,
           //   "new ELEMENT width",
@@ -221,9 +255,9 @@ function App({ polotnoStore }) {
   };
   // Media Post
   const sendImgAPI = async (payload, key, id) => {
-    for (let it of payload) {
-      console.log(it, "send media api");
-    }
+    // for (let it of payload) {
+    //   console.log(it, "send media api");
+    // }
     const headers = {
       Accept: "application/json",
     };
@@ -379,7 +413,7 @@ function App({ polotnoStore }) {
       title: "Do you want to save the changes?",
       html: `${
         !element
-          ? `<button id="btn1" type="button" class="btn btn-custom popup_qr_button">Add Qr</button>`
+          ? `<button id="btn1" type="button" class="btn btn-custom popup_qr_button">Add QR Code</button>`
           : ""
       }`,
       showDenyButton: templatesId && true,

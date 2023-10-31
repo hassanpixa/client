@@ -56,7 +56,7 @@ export const TemplatesPanel = observer(({ store }) => {
     try {
       const res = await axios.get(Endpoints.template);
       const fetchedData = res?.data?.result?.templates?.data;
-      // console.log(fetchedData, "FETCHED DATA");
+      console.log(fetchedData, "FETCHED DATA");
       for (let i = 0; i < fetchedData.length; i++) {
         // SetCustomTemplates((prev) => [
         //   ...prev,
