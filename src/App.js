@@ -51,7 +51,9 @@ function App({ polotnoStore }) {
   // overwrite its panel component
   ResizeSection.Panel = CustomResizePanel;
   const sections = [QrSection, CustomTemplateTab, ...DEFAULT_SECTIONS];
-  const filteredSections = sections.filter((section) => section.name !== "templates");
+  const filteredSections = sections.filter(
+    (section) => section.name !== "templates"
+  );
   // redux states
   const showPopUp = useSelector((state) => state.ui.showPopUp);
   // const qrBtn = useSelector((state) => state.ui.addQr);
@@ -96,16 +98,16 @@ function App({ polotnoStore }) {
       const payload = new FormData();
       const data = new Date();
       await polotnoStore.waitLoading();
-      polotnoStore.activePage.set({ bleed: 20 }); // set bleed in pixels
-      polotnoStore.toggleBleed(true);
+      // polotnoStore.activePage.set({ bleed: 20 }); // set bleed in pixels
+      // polotnoStore.toggleBleed(true);
       // polotnoStore.toggleBleed(false);
       const originalWidth = await polotnoStore.width;
       const originalHeight = await polotnoStore.height;
       const widthFactor = getFactor(originalWidth, width);
       const heightFactor = getFactor(originalHeight, height);
-      console.log('BEFORE',polotnoStore.width,'widht',polotnoStore.height,'Height')
+      console.log("before", polotnoStore.width, polotnoStore.height);
       await polotnoStore.setSize(width, height);
-      console.log('After',polotnoStore.width,'widht',polotnoStore.height,'Height')
+      console.log("after", polotnoStore.width, polotnoStore.height);
       if (widthFactor) {
         // console.log(
         //   widthFactor,
@@ -122,16 +124,37 @@ function App({ polotnoStore }) {
           //   element.y,
           //   "y-axis"
           // );
-          // console.log(element, "ELEMENT PROPS");
+          console.log(element, "ELEMENT PROPS");
           const name = element.name;
           const type = element.type;
+          const fontFamily = element.fontFamily;
+          const fontWeight = element.fontWeight;
           // console.log(type,'TYPE',name,'NAME')
           if (type === "text") {
-            // console.log(element.fontSize, "BFORE TEXT ELEMENT", widthFactor, heightFactor);
+            // console.log(
+            //   element.fontSize,
+            //   "BFORE TEXT ELEMENT",
+            //   widthFactor,
+            //   heightFactor
+            // );
             element.set({
-              fontSize: element.fontSize * widthFactor * heightFactor ,
-              width: element.width * widthFactor,
-              height: element.height * heightFactor,
+              fontSize:key === 'Mobile' && element.fontSize * heightFactor ||  element.fontSize * widthFactor,
+              // fontSize:
+              //   element.fontSize < 100
+              //     ? element.fontSize * widthFactor
+              //     : element.fontSize * heightFactor,
+              // fontSize:
+              //   fontFamily === "Rubik Mono One" ||
+              //   fontFamily === "Press Start 2P" ||
+              //   fontFamily === "Anton" ||
+              //   fontFamily === "Open Sans"
+              //     ? element.fontSize * heightFactor
+              //     : element.fontSize * widthFactor,
+              width:
+                (key === "Mobile" && element.width * widthFactor) ||
+                (key === "TV" && element.width * widthFactor) ||
+                (key === "Tab" && element.width * widthFactor),
+              height:  element.height * heightFactor,
               x: element.x * widthFactor,
               y: element.y * heightFactor,
               keepRatio: true,
@@ -139,9 +162,20 @@ function App({ polotnoStore }) {
             });
             // console.log(element.fontSize, "after TEXT ELEMENT");
           } else if (name === "qr") {
+            console.log("i am hit in", name);
             element.set({
               width: element.width * heightFactor,
               height: element.height * heightFactor,
+              x: element.x * widthFactor,
+              y: element.y * heightFactor,
+              keepRatio: true,
+              resizeable: true,
+            });
+          } else if (type === "svg") {
+            console.log("I AM HIT IN ", type);
+            element.set({
+              width: element.width * widthFactor,
+              height:  (key === "Mobile" && element.height * widthFactor) || element.height * heightFactor,
               x: element.x * widthFactor,
               y: element.y * heightFactor,
               keepRatio: true,
@@ -181,13 +215,17 @@ function App({ polotnoStore }) {
 
         if (type === "send") {
           payload.append("template_id", id);
-          await sendImgAPI(payload, key, id);
-          polotnoStore.history.undo();
+          const status = await sendImgAPI(payload, key, id);
+          if (status) {
+            polotnoStore.history.undo();
+          }
           // console.log("Post Media APi Hit");
         } else {
           payload.append("template_id", templatesId);
-          await updateImgApi(payload, key);
-          polotnoStore.history.undo();
+          const status = await updateImgApi(payload, key);
+          if (status) {
+            polotnoStore.history.undo();
+          }
           // console.log("Update Media APi Hit");
         }
       }
@@ -237,7 +275,7 @@ function App({ polotnoStore }) {
       // console.log("TEMPLATE ID --------", res?.data?.result?.template?.id);
       if (res.status === 200) {
         // showSavingMessage();
-        // await polotnoStore.history.clear();
+        await polotnoStore.history.clear();
         const message = "Saving";
         showLoadingAlert(message);
       }
@@ -272,6 +310,7 @@ function App({ polotnoStore }) {
         // showSavedMessage();
 
         if (id) {
+          polotnoStore.history.undo();
           const json = await JSON.stringify(await polotnoStore.toJSON());
           const prev = await polotnoStore.toDataURL({ mimeType: "image/jpg" });
           dispatch(
@@ -285,8 +324,8 @@ function App({ polotnoStore }) {
           showLoadedAlert(message);
           emitEventToParent();
         }
-        return res.status;
       }
+      return res.status;
     } catch (error) {
       // console.log(`error API MEDIA-${key}`, error.message);
       Swal.fire(
@@ -314,7 +353,7 @@ function App({ polotnoStore }) {
         }
       );
       if (res.status === 200) {
-        // await polotnoStore.history.clear();
+        await polotnoStore.history.clear();
         const message = "Updating";
         showLoadingAlert(message);
       }
@@ -348,6 +387,7 @@ function App({ polotnoStore }) {
       mediaIds.push(res?.data?.result?.media?.id);
       if (key === "Tab" && res.status === 200) {
         if (templatesId) {
+          polotnoStore.history.undo();
           const json = await JSON.stringify(await polotnoStore.toJSON());
           const prev = await polotnoStore.toDataURL({ mimeType: "image/jpg" });
           const storeData = {
@@ -361,6 +401,7 @@ function App({ polotnoStore }) {
           emitEventToParent();
         }
       }
+      return res.status;
     } catch (error) {
       Swal.fire(
         "Error!",
